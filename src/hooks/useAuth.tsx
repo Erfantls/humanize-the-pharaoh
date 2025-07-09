@@ -52,13 +52,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      // Cast the user_type to the expected type
-      const profileData: Profile = {
-        ...data,
-        user_type: data.user_type as 'standard' | 'premium' | 'admin'
-      };
-
-      setProfile(profileData);
+      if (data) {
+        const profileData: Profile = {
+          ...data,
+          user_type: data.user_type as 'standard' | 'premium' | 'admin'
+        };
+        setProfile(profileData);
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -71,33 +71,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Error getting session:', error);
       }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+      
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
       }
+      
       setLoading(false);
-    });
+    };
+
+    getInitialSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user && event === 'SIGNED_IN') {
+          // Delay profile fetch to avoid potential conflicts
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+          }, 100);
+        } else if (event === 'SIGNED_OUT') {
+          setProfile(null);
+        }
+        
+        setLoading(false);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
@@ -126,6 +139,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setProfile(null);
   };
 
   return (

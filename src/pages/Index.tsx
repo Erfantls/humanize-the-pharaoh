@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Copy, Wand2, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Copy, Wand2, FileText, CheckCircle, AlertTriangle, Sparkles, Zap, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -35,9 +35,23 @@ const Index = () => {
   const { isDark, toggleTheme } = useTheme();
 
   const handleHumanize = async () => {
-    // Require authentication first
-    if (!user || !profile) {
+    // Check authentication first
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to use the AI Text Humanizer.",
+        variant: "destructive"
+      });
       setShowAuthModal(true);
+      return;
+    }
+
+    if (!profile) {
+      toast({
+        title: "Profile Loading",
+        description: "Please wait while we load your profile.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -60,6 +74,11 @@ const Index = () => {
     }
 
     if (!canUseHumanizer()) {
+      toast({
+        title: "Usage limit reached",
+        description: "You've reached your monthly limit. Upgrade to premium for unlimited usage.",
+        variant: "destructive"
+      });
       setShowPremiumModal(true);
       return;
     }
@@ -141,6 +160,8 @@ const Index = () => {
     }
   };
 
+  const isUserAuthenticated = user && profile;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
       {/* Navigation */}
@@ -163,20 +184,21 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12 animate-fade-in">
           <div className="flex items-center justify-center mb-4">
-            <div className="p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white shadow-lg">
-              <Wand2 className="w-8 h-8" />
+            <div className="p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl text-white shadow-2xl">
+              <Wand2 className="w-10 h-10" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6">
             AI Text Humanizer
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Transform AI-generated content into natural, human-like text that flows naturally and engages readers.
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Transform AI-generated content into natural, human-like text that flows naturally and engages readers. 
+            Bypass AI detection with our advanced humanization technology.
           </p>
         </div>
 
         {/* Usage Limiter */}
-        {user && profile && profile.user_type === 'standard' && (
+        {isUserAuthenticated && profile.user_type === 'standard' && (
           <div className="max-w-6xl mx-auto mb-8">
             <UsageLimiter 
               usageCount={currentUsage}
@@ -189,18 +211,21 @@ const Index = () => {
         {/* Auth Required Message */}
         {!authLoading && !user && (
           <div className="max-w-6xl mx-auto mb-8">
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 animate-fade-in">
-              <div className="flex items-center mb-2">
-                <AlertTriangle className="w-5 h-5 text-yellow-500 mr-2" />
-                <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Authentication Required</h3>
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-200 dark:border-yellow-800 rounded-2xl p-6 animate-fade-in shadow-lg">
+              <div className="flex items-center mb-4">
+                <div className="p-2 bg-yellow-500 rounded-full mr-3">
+                  <AlertTriangle className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200">Authentication Required</h3>
               </div>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
-                Please sign in or create an account to use the AI Text Humanizer.
+              <p className="text-yellow-700 dark:text-yellow-300 mb-4 text-lg">
+                Please sign in or create an account to use the AI Text Humanizer and unlock powerful features.
               </p>
               <Button
                 onClick={() => setShowAuthModal(true)}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
+                <Sparkles className="w-5 h-5 mr-2" />
                 Sign In / Sign Up
               </Button>
             </div>
@@ -211,38 +236,43 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Input Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-scale-in transition-colors">
-              <div className="flex items-center mb-4">
-                <FileText className="w-5 h-5 text-purple-600 mr-2" />
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Original Text</h2>
-                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
-                  {inputText.length}/{profile?.user_type === 'standard' ? maxCharacterLimit : '∞'} characters
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 animate-scale-in transition-colors border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center mb-6">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg mr-3">
+                  <FileText className="w-6 h-6 text-purple-600" />
+                </div>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">Original Text</h2>
+                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                  {inputText.length}/{isUserAuthenticated && profile?.user_type === 'standard' ? maxCharacterLimit : '∞'} characters
                 </span>
               </div>
               
               <Textarea
-                placeholder="Paste your AI-generated text here to make it sound more human and natural..."
+                placeholder={isUserAuthenticated 
+                  ? "Paste your AI-generated text here to make it sound more human and natural..." 
+                  : "Please sign in to use the AI Text Humanizer..."
+                }
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                className="min-h-[300px] resize-none border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                disabled={!user}
+                className="min-h-[300px] resize-none border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-lg p-6 rounded-2xl"
+                disabled={!isUserAuthenticated}
               />
               
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-4 mt-6">
                 <Button
                   onClick={handleHumanize}
-                  disabled={isProcessing || !inputText.trim() || !user}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-3 rounded-xl transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
+                  disabled={isProcessing || !inputText.trim() || !isUserAuthenticated}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 rounded-2xl transition-all duration-200 hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl text-lg"
                 >
                   {isProcessing ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3" />
                       Humanizing...
                     </>
                   ) : (
                     <>
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      {!user ? 'Sign In to Humanize' : 'Humanize Text'}
+                      <Wand2 className="w-5 h-5 mr-3" />
+                      {!isUserAuthenticated ? 'Sign In to Humanize' : 'Humanize Text'}
                     </>
                   )}
                 </Button>
@@ -250,7 +280,7 @@ const Index = () => {
                 <Button
                   onClick={clearAll}
                   variant="outline"
-                  className="px-6 py-3 rounded-xl border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="px-8 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-lg font-medium"
                 >
                   Clear
                 </Button>
@@ -264,49 +294,51 @@ const Index = () => {
             </div>
 
             {/* Output Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-scale-in transition-colors">
-              <div className="flex items-center mb-4">
-                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Humanized Text</h2>
-                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 animate-scale-in transition-colors border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center mb-6">
+                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg mr-3">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">Humanized Text</h2>
+                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
                   {outputText.length} characters
                 </span>
               </div>
               
-              <div className={`min-h-[300px] p-4 border rounded-xl transition-all duration-300 ${
+              <div className={`min-h-[300px] p-6 border-2 rounded-2xl transition-all duration-300 ${
                 outputText 
                   ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/20' 
                   : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'
               }`}>
                 {outputText ? (
-                  <div className="text-gray-800 dark:text-gray-200 leading-relaxed animate-fade-in">
+                  <div className="text-gray-800 dark:text-gray-200 leading-relaxed animate-fade-in text-lg">
                     {outputText}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500">
+                  <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-lg">
                     Your humanized text will appear here...
                   </div>
                 )}
               </div>
               
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-4 mt-6">
                 <Button
                   onClick={handleCopy}
                   disabled={!outputText}
-                  className={`flex-1 font-medium py-3 rounded-xl transition-all duration-200 ${
+                  className={`flex-1 font-semibold py-4 rounded-2xl transition-all duration-200 text-lg ${
                     copied 
-                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg' 
                       : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
-                  } hover:scale-105 disabled:hover:scale-100`}
+                  } hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl`}
                 >
                   {copied ? (
                     <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
+                      <CheckCircle className="w-5 h-5 mr-3" />
                       Copied!
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 mr-2" />
+                      <Copy className="w-5 h-5 mr-3" />
                       Copy Text
                     </>
                   )}
@@ -317,36 +349,39 @@ const Index = () => {
 
           {/* Sidebar Ad */}
           {user && (
-            <div className="mt-8 flex justify-center">
+            <div className="mt-12 flex justify-center">
               <AdBanner position="sidebar" />
             </div>
           )}
 
           {/* Features Section */}
-          <div className="mt-16 text-center animate-fade-in">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-8">Why Choose Our Humanizer?</h3>
-            <div className="grid md:grid-cols-3 gap-6">
+          <div className="mt-20 text-center animate-fade-in">
+            <h3 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4">Why Choose Our Humanizer?</h3>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto">
+              Experience the most advanced AI text humanization technology available today
+            </p>
+            <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
-                  icon: "🧠",
+                  icon: <Shield className="w-12 h-12 text-purple-600" />,
                   title: "Smart AI Detection Bypass",
-                  description: "Advanced algorithms that make text undetectable by AI checkers"
+                  description: "Advanced algorithms that make text undetectable by AI checkers and plagiarism detectors"
                 },
                 {
-                  icon: "✨",
+                  icon: <Sparkles className="w-12 h-12 text-blue-600" />,
                   title: "Natural Flow",
-                  description: "Creates human-like sentence variations and natural transitions"
+                  description: "Creates human-like sentence variations and natural transitions that feel authentic"
                 },
                 {
-                  icon: "🚀",
+                  icon: <Zap className="w-12 h-12 text-green-600" />,
                   title: "Instant Results",
-                  description: "Get humanized text in seconds, ready for immediate use"
+                  description: "Get humanized text in seconds, ready for immediate use in any context"
                 }
               ].map((feature, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                  <div className="text-3xl mb-3">{feature.icon}</div>
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">{feature.title}</h4>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">{feature.description}</p>
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-center mb-6">{feature.icon}</div>
+                  <h4 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{feature.title}</h4>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -355,7 +390,7 @@ const Index = () => {
 
         {/* Bottom Ad Banner */}
         {user && (
-          <div className="mt-16">
+          <div className="mt-20">
             <AdBanner position="bottom" />
           </div>
         )}
