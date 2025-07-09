@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Zap, Shield, Users, ArrowRight, CheckCircle, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,8 +8,10 @@ import { useUsage } from '@/hooks/useUsage';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import AuthModal from '@/components/AuthModal';
-import PremiumModal from '@/components/PremiumModal';
+import YearlyPaymentModal from '@/components/YearlyPaymentModal';
 import UsageLimiter from '@/components/UsageLimiter';
+import HumanizationPreview from '@/components/HumanizationPreview';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import { humanizeText } from '@/utils/textHumanizer';
 
 const Index = () => {
@@ -18,7 +19,9 @@ const Index = () => {
   const [outputText, setOutputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<'usage_limit' | 'character_limit' | 'feature_locked'>('usage_limit');
   
   const { toast } = useToast();
   const { user, profile, loading: authLoading } = useAuth();
@@ -53,7 +56,8 @@ const Index = () => {
     }
 
     if (!canUseHumanizer()) {
-      setShowPremiumModal(true);
+      setUpgradeReason('usage_limit');
+      setShowUpgradePrompt(true);
       toast({
         title: "Usage limit reached",
         description: "You've reached your monthly limit. Upgrade to continue.",
@@ -63,6 +67,8 @@ const Index = () => {
     }
 
     if (!checkCharacterLimit(inputText)) {
+      setUpgradeReason('character_limit');
+      setShowUpgradePrompt(true);
       toast({
         title: "Text too long",
         description: "Standard accounts are limited to 10,000 characters. Upgrade for unlimited usage.",
@@ -114,6 +120,11 @@ const Index = () => {
     }
   };
 
+  const handleUpgrade = () => {
+    setShowUpgradePrompt(false);
+    setShowPaymentModal(true);
+  };
+
   const features = [
     {
       icon: <Zap className="w-6 h-6 text-blue-500" />,
@@ -159,7 +170,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 transition-colors">
       <Navigation
         onLoginClick={() => setShowAuthModal(true)}
-        onUpgradeClick={() => setShowPremiumModal(true)}
+        onUpgradeClick={() => setShowPaymentModal(true)}
         isDark={isDark}
         onThemeToggle={toggleTheme}
       />
@@ -194,7 +205,7 @@ const Index = () => {
                 <UsageLimiter
                   usageCount={profile?.monthly_usage_count || 0}
                   maxUsage={5}
-                  onUpgrade={() => setShowPremiumModal(true)}
+                  onUpgrade={() => setShowPaymentModal(true)}
                 />
               )}
               
@@ -254,12 +265,19 @@ const Index = () => {
                   )}
                 </Button>
               </div>
+
+              {/* Add the preview component */}
+              {outputText && (
+                <HumanizationPreview
+                  originalText={inputText}
+                  humanizedText={outputText}
+                />
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 px-4 bg-white dark:bg-gray-800 transition-colors">
         <div className="container mx-auto">
           <div className="text-center mb-16">
@@ -281,7 +299,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 transition-colors">
         <div className="container mx-auto">
           <div className="text-center mb-16">
@@ -310,18 +327,17 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
         <div className="container mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to Humanize Your Content?</h2>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of users who create natural, human-like content every day
+            Get unlimited access for a full year - no recurring charges!
           </p>
           <Button
-            onClick={() => !isAuthenticated ? setShowAuthModal(true) : document.querySelector('textarea')?.focus()}
+            onClick={() => !isAuthenticated ? setShowAuthModal(true) : setShowPaymentModal(true)}
             className="bg-white text-purple-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 text-lg"
           >
-            {isAuthenticated ? 'Start Humanizing' : 'Get Started Free'}
+            {isAuthenticated ? 'Upgrade to Yearly Premium' : 'Get Started Free'}
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
@@ -333,9 +349,25 @@ const Index = () => {
         onClose={() => setShowAuthModal(false)} 
       />
       
-      <PremiumModal 
-        isOpen={showPremiumModal} 
-        onClose={() => setShowPremiumModal(false)}
+      <YearlyPaymentModal 
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)}
+        onUpgrade={() => {
+          setShowPaymentModal(false);
+          toast({
+            title: "Redirecting to payment...",
+            description: "You'll be redirected to our secure payment processor.",
+          });
+        }}
+      />
+
+      <UpgradePrompt
+        isOpen={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        onUpgrade={handleUpgrade}
+        reason={upgradeReason}
+        currentUsage={profile?.monthly_usage_count || 0}
+        maxUsage={5}
       />
     </div>
   );
