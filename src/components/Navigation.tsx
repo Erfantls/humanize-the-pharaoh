@@ -16,18 +16,52 @@ const Navigation: React.FC<NavigationProps> = ({
   onLoginClick, 
   onUpgradeClick, 
   isDark, 
-  onThemeToggle 
+  onThemeTogile 
 }) => {
   const { user, profile, signOut, loading } = useAuth();
 
+  console.log('Navigation render - user:', user?.email, 'profile:', profile, 'loading:', loading);
+
   const handleSignOut = async () => {
     try {
+      console.log('Navigation: Signing out...');
       await signOut();
-      window.location.reload(); // Force refresh to ensure clean state
     } catch (error) {
       console.error('Error signing out:', error);
+      // Force refresh as fallback
+      window.location.reload();
     }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors backdrop-blur-lg bg-opacity-95 dark:bg-opacity-95 sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  AI Text Humanizer
+                </h1>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
+              <div className="w-8 h-8 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  // Show authenticated user state
+  const isAuthenticated = user && profile;
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors backdrop-blur-lg bg-opacity-95 dark:bg-opacity-95 sticky top-0 z-50">
@@ -47,9 +81,7 @@ const Navigation: React.FC<NavigationProps> = ({
           <div className="flex items-center space-x-4">
             <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
             
-            {loading ? (
-              <div className="w-8 h-8 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
-            ) : user && profile ? (
+            {isAuthenticated ? (
               <div className="flex items-center space-x-3">
                 <div className="hidden md:flex items-center space-x-3">
                   <div className="text-right">

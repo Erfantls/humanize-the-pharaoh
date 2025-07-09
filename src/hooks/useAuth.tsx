@@ -33,6 +33,27 @@ export const useAuth = () => {
   return context;
 };
 
+// Auth cleanup utility
+const cleanupAuthState = () => {
+  try {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    if (typeof sessionStorage !== 'undefined') {
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          sessionStorage.removeItem(key);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error cleaning up auth state:', error);
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -41,6 +62,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -49,18 +72,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        // If profile doesn't exist, try to create it
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found, will be created by trigger');
+          // Wait a bit for the trigger to create the profile
+          setTimeout(() => fetchProfile(userId), 1000);
+        }
         return;
       }
 
       if (data) {
+        console.log('Profile fetched successfully:', data);
         const profileData: Profile = {
-          ...data,
-          user_type: data.user_type as 'standard' | 'premium' | 'admin'
+          id: data.id,
+          email: data.email,
+          full_name: data.full_name,
+          user_type: data.user_type as 'standard' | 'premium' | 'admin',
+          monthly_usage_count: data.monthly_usage_count,
+          usage_reset_date: data.usage_reset_date
         };
         setProfile(profileData);
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error in fetchProfile:', error);
     }
   };
 
@@ -71,27 +105,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error getting session:', error);
-      }
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      }
-      
-      setLoading(false);
-    };
-
-    getInitialSession();
-
-    // Set up auth state listener
+    console.log('Setting up auth state listener...');
+    
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
@@ -99,11 +115,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user && event === 'SIGNED_IN') {
-          // Delay profile fetch to avoid potential conflicts
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          // Defer profile fetch to prevent conflicts
           setTimeout(() => {
             fetchProfile(session.user.id);
-          }, 100);
+          }, 500);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
         }
@@ -112,49 +128,151 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    return () => subscription.unsubscribe();
+    // THEN check for existing session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        console.log('Initial session check:', session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
+
+    return () => {
+      console.log('Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    console.log('Attempting sign up for:', email);
     
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: fullName ? { full_name: fullName } : undefined
+    try {
+      // Clean up any existing auth state
+      cleanupAuthState();
+      
+      // Sign out any existing session
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        console.log('No existing session to sign out');
       }
-    });
-    return { error };
+
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: fullName ? { full_name: fullName } : undefined
+        }
+      });
+
+      if (error) {
+        console.error('Sign up error:', error);
+        return { error };
+      }
+
+      console.log('Sign up successful:', data);
+      return { error: null };
+    } catch (error) {
+      console.error('Sign up exception:', error);
+      return { error };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    return { error };
+    console.log('Attempting sign in for:', email);
+    
+    try {
+      // Clean up any existing auth state
+      cleanupAuthState();
+      
+      // Sign out any existing session
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        console.log('No existing session to sign out');
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        return { error };
+      }
+
+      console.log('Sign in successful:', data);
+      
+      // Force page refresh for clean state
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Sign in exception:', error);
+      return { error };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
+    console.log('Signing out...');
+    
+    try {
+      // Clean up state first
+      cleanupAuthState();
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear local state
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      
+      // Force page refresh
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Force refresh even if signout fails
+      window.location.href = '/';
+    }
+  };
+
+  const contextValue = {
+    user,
+    session,
+    profile,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    refreshProfile
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      profile,
-      loading,
-      signUp,
-      signIn,
-      signOut,
-      refreshProfile
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

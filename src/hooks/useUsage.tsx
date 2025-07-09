@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -23,31 +23,49 @@ export const useUsage = () => {
   };
 
   const recordUsage = async (charactersUsed: number) => {
-    if (!user || !profile) return;
+    if (!user || !profile) {
+      console.error('No user or profile available for usage recording');
+      return;
+    }
 
     setLoading(true);
     try {
+      console.log('Recording usage for user:', user.id, 'characters:', charactersUsed);
+      
       // Record usage log
-      await supabase
+      const { error: logError } = await supabase
         .from('usage_logs')
         .insert({
           user_id: user.id,
           characters_used: charactersUsed
         });
 
+      if (logError) {
+        console.error('Error recording usage log:', logError);
+      } else {
+        console.log('Usage log recorded successfully');
+      }
+
       // Update profile usage count
-      await supabase
+      const newUsageCount = profile.monthly_usage_count + 1;
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          monthly_usage_count: profile.monthly_usage_count + 1,
+          monthly_usage_count: newUsageCount,
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id);
 
+      if (updateError) {
+        console.error('Error updating profile usage:', updateError);
+      } else {
+        console.log('Profile usage updated successfully');
+      }
+
       // Refresh profile to get updated usage
       await refreshProfile();
     } catch (error) {
-      console.error('Error recording usage:', error);
+      console.error('Error in recordUsage:', error);
     } finally {
       setLoading(false);
     }

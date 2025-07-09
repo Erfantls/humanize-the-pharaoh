@@ -34,9 +34,14 @@ const Index = () => {
   const { toast } = useToast();
   const { isDark, toggleTheme } = useTheme();
 
+  console.log('Index render - user:', user?.email, 'profile:', profile, 'authLoading:', authLoading);
+
   const handleHumanize = async () => {
+    console.log('Humanize button clicked');
+    
     // Check authentication first
     if (!user) {
+      console.log('User not authenticated');
       toast({
         title: "Authentication Required",
         description: "Please sign in to use the AI Text Humanizer.",
@@ -47,6 +52,7 @@ const Index = () => {
     }
 
     if (!profile) {
+      console.log('Profile not loaded');
       toast({
         title: "Profile Loading",
         description: "Please wait while we load your profile.",
@@ -83,6 +89,7 @@ const Index = () => {
       return;
     }
 
+    console.log('Starting humanization process');
     setIsProcessing(true);
     setReplacements([]);
     
@@ -104,6 +111,7 @@ const Index = () => {
         setIsProcessing(false);
         
         // Record usage
+        console.log('Recording usage...');
         await recordUsage(inputText.length);
         
         toast({
@@ -112,6 +120,7 @@ const Index = () => {
         });
       }, 1500);
     } catch (error) {
+      console.error('Humanization error:', error);
       setIsProcessing(false);
       toast({
         title: "Humanization failed",
@@ -150,6 +159,7 @@ const Index = () => {
   };
 
   const handleUpgradeClick = () => {
+    console.log('Upgrade button clicked');
     setShowPremiumModal(true);
   };
 
@@ -232,6 +242,18 @@ const Index = () => {
           </div>
         )}
 
+        {/* Loading State */}
+        {authLoading && (
+          <div className="max-w-6xl mx-auto mb-8">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+              <div className="flex items-center justify-center">
+                <div className="w-8 h-8 animate-spin rounded-full border-2 border-purple-600 border-t-transparent mr-3" />
+                <span className="text-gray-600 dark:text-gray-300">Loading your profile...</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Interface */}
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
@@ -255,13 +277,13 @@ const Index = () => {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="min-h-[300px] resize-none border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-lg p-6 rounded-2xl"
-                disabled={!isUserAuthenticated}
+                disabled={!isUserAuthenticated || authLoading}
               />
               
               <div className="flex gap-4 mt-6">
                 <Button
                   onClick={handleHumanize}
-                  disabled={isProcessing || !inputText.trim() || !isUserAuthenticated}
+                  disabled={isProcessing || !inputText.trim() || !isUserAuthenticated || authLoading}
                   className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 rounded-2xl transition-all duration-200 hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl text-lg"
                 >
                   {isProcessing ? (
