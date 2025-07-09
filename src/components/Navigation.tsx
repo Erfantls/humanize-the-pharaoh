@@ -16,7 +16,7 @@ const Navigation: React.FC<NavigationProps> = ({
   onLoginClick, 
   onUpgradeClick, 
   isDark, 
-  onThemeTogile 
+  onThemeToggle 
 }) => {
   const { user, profile, signOut, loading } = useAuth();
 
