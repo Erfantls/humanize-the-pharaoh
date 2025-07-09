@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Copy, Wand2, FileText, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,8 @@ import { humanizeText } from '@/utils/textHumanizer';
 import AdBanner from '@/components/AdBanner';
 import PremiumModal from '@/components/PremiumModal';
 import UsageLimiter from '@/components/UsageLimiter';
+import USDTPaymentModal from '@/components/USDTPaymentModal';
+import TextReplacementDisplay from '@/components/TextReplacementDisplay';
 
 const Index = () => {
   const [inputText, setInputText] = useState('');
@@ -15,8 +16,10 @@ const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showUSDTModal, setShowUSDTModal] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
   const [showTopAd, setShowTopAd] = useState(true);
+  const [replacements, setReplacements] = useState<Array<{original: string; humanized: string; position: number}>>([]);
   const { toast } = useToast();
 
   const MAX_FREE_USAGE = 5;
@@ -38,11 +41,22 @@ const Index = () => {
     }
 
     setIsProcessing(true);
+    setReplacements([]);
     
-    // Simulate processing time for better UX
+    // Simulate processing with replacement tracking
     setTimeout(() => {
       const humanized = humanizeText(inputText);
       setOutputText(humanized);
+      
+      // Simulate some replacements for demo
+      const mockReplacements = [
+        { original: "it is important to note", humanized: "worth mentioning", position: 0 },
+        { original: "furthermore", humanized: "oh, and another thing", position: 1 },
+        { original: "utilize", humanized: "use", position: 2 },
+        { original: "demonstrate", humanized: "show", position: 3 }
+      ].filter(() => Math.random() > 0.5); // Random selection for demo
+      
+      setReplacements(mockReplacements);
       setIsProcessing(false);
       setUsageCount(prev => prev + 1);
       
@@ -78,6 +92,12 @@ const Index = () => {
     setInputText('');
     setOutputText('');
     setCopied(false);
+    setReplacements([]);
+  };
+
+  const handleUpgradeClick = () => {
+    setShowPremiumModal(false);
+    setShowUSDTModal(true);
   };
 
   return (
@@ -162,6 +182,12 @@ const Index = () => {
                   Clear
                 </Button>
               </div>
+
+              {/* Text Replacement Display */}
+              <TextReplacementDisplay 
+                replacements={replacements} 
+                isProcessing={isProcessing}
+              />
             </div>
 
             {/* Output Section */}
@@ -260,6 +286,12 @@ const Index = () => {
       <PremiumModal 
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
+      />
+
+      {/* USDT Payment Modal */}
+      <USDTPaymentModal 
+        isOpen={showUSDTModal}
+        onClose={() => setShowUSDTModal(false)}
       />
     </div>
   );

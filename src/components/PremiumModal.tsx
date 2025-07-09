@@ -1,13 +1,13 @@
-
 import React from 'react';
 import { X, Check, Crown } from 'lucide-react';
 
 interface PremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onUpgrade?: () => void;
 }
 
-const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose }) => {
+const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, onUpgrade }) => {
   if (!isOpen) return null;
 
   const features = [
@@ -20,6 +20,12 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose }) => {
     'No advertisements',
     '24/7 premium support'
   ];
+
+  const handleUpgradeClick = () => {
+    if (onUpgrade) {
+      onUpgrade();
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
@@ -53,12 +59,15 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        <button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 hover:scale-105">
-          Upgrade to Premium
+        <button 
+          onClick={handleUpgradeClick}
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 hover:scale-105"
+        >
+          Pay with USDT
         </button>
         
         <div className="text-center mt-4 text-sm text-gray-500">
-          Cancel anytime • 30-day money-back guarantee
+          Secure crypto payment • Instant activation
         </div>
       </div>
     </div>
