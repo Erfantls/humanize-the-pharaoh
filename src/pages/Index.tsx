@@ -5,13 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { humanizeText } from '@/utils/textHumanizer';
+import AdBanner from '@/components/AdBanner';
+import PremiumModal from '@/components/PremiumModal';
+import UsageLimiter from '@/components/UsageLimiter';
 
 const Index = () => {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [usageCount, setUsageCount] = useState(0);
+  const [showTopAd, setShowTopAd] = useState(true);
   const { toast } = useToast();
+
+  const MAX_FREE_USAGE = 5;
+  const isLimitReached = usageCount >= MAX_FREE_USAGE;
 
   const handleHumanize = async () => {
     if (!inputText.trim()) {
@@ -23,6 +32,11 @@ const Index = () => {
       return;
     }
 
+    if (isLimitReached) {
+      setShowPremiumModal(true);
+      return;
+    }
+
     setIsProcessing(true);
     
     // Simulate processing time for better UX
@@ -30,6 +44,7 @@ const Index = () => {
       const humanized = humanizeText(inputText);
       setOutputText(humanized);
       setIsProcessing(false);
+      setUsageCount(prev => prev + 1);
       
       toast({
         title: "Text humanized successfully!",
@@ -67,6 +82,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      {/* Top Ad Banner */}
+      {showTopAd && (
+        <AdBanner 
+          position="top" 
+          onClose={() => setShowTopAd(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12 animate-fade-in">
@@ -81,6 +104,15 @@ const Index = () => {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Transform AI-generated content into natural, human-like text that flows naturally and engages readers.
           </p>
+        </div>
+
+        {/* Usage Limiter */}
+        <div className="max-w-6xl mx-auto mb-8">
+          <UsageLimiter 
+            usageCount={usageCount}
+            maxUsage={MAX_FREE_USAGE}
+            onUpgrade={() => setShowPremiumModal(true)}
+          />
         </div>
 
         {/* Main Interface */}
@@ -117,7 +149,7 @@ const Index = () => {
                   ) : (
                     <>
                       <Wand2 className="w-4 h-4 mr-2" />
-                      Humanize Text
+                      {isLimitReached ? 'Upgrade to Continue' : 'Humanize Text'}
                     </>
                   )}
                 </Button>
@@ -182,6 +214,11 @@ const Index = () => {
             </div>
           </div>
 
+          {/* Sidebar Ad */}
+          <div className="mt-8 flex justify-center">
+            <AdBanner position="sidebar" />
+          </div>
+
           {/* Features Section */}
           <div className="mt-16 text-center animate-fade-in">
             <h3 className="text-2xl font-bold text-gray-800 mb-8">Why Choose Our Humanizer?</h3>
@@ -212,7 +249,18 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        {/* Bottom Ad Banner */}
+        <div className="mt-16">
+          <AdBanner position="bottom" />
+        </div>
       </div>
+
+      {/* Premium Modal */}
+      <PremiumModal 
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+      />
     </div>
   );
 };
