@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { X, Check, Crown } from 'lucide-react';
 
@@ -29,31 +30,31 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, onUpgrade 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
-      <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 animate-scale-in">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 animate-scale-in">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <Crown className="w-6 h-6 text-yellow-500 mr-2" />
-            <h2 className="text-2xl font-bold text-gray-800">Go Premium</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Go Premium</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
         </div>
 
         <div className="mb-6">
           <div className="text-center mb-4">
-            <div className="text-3xl font-bold text-purple-600">$9.99</div>
-            <div className="text-gray-600">per month</div>
+            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">$9.99</div>
+            <div className="text-gray-600 dark:text-gray-300">per month</div>
           </div>
           
           <div className="space-y-3">
             {features.map((feature, index) => (
               <div key={index} className="flex items-center">
                 <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">{feature}</span>
+                <span className="text-gray-700 dark:text-gray-200">{feature}</span>
               </div>
             ))}
           </div>
@@ -66,7 +67,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, onUpgrade 
           Pay with USDT
         </button>
         
-        <div className="text-center mt-4 text-sm text-gray-500">
+        <div className="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
           Secure crypto payment • Instant activation
         </div>
       </div>

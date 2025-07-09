@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { humanizeText } from '@/utils/textHumanizer';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsage } from '@/hooks/useUsage';
+import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import AuthModal from '@/components/AuthModal';
 import PremiumModal from '@/components/PremiumModal';
@@ -31,19 +32,21 @@ const Index = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const { canUseHumanizer, checkCharacterLimit, recordUsage, maxCharacterLimit, currentUsage, maxFreeUsage } = useUsage();
   const { toast } = useToast();
+  const { isDark, toggleTheme } = useTheme();
 
   const handleHumanize = async () => {
+    // Require authentication first
+    if (!user || !profile) {
+      setShowAuthModal(true);
+      return;
+    }
+
     if (!inputText.trim()) {
       toast({
         title: "Please enter some text",
         description: "Add the text you want to humanize first.",
         variant: "destructive"
       });
-      return;
-    }
-
-    if (!user || !profile) {
-      setShowAuthModal(true);
       return;
     }
 
@@ -139,11 +142,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
       {/* Navigation */}
       <Navigation 
         onLoginClick={() => setShowAuthModal(true)}
         onUpgradeClick={handleUpgradeClick}
+        isDark={isDark}
+        onThemeToggle={toggleTheme}
       />
 
       {/* Top Ad Banner */}
@@ -165,7 +170,7 @@ const Index = () => {
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
             AI Text Humanizer
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Transform AI-generated content into natural, human-like text that flows naturally and engages readers.
           </p>
         </div>
@@ -184,12 +189,12 @@ const Index = () => {
         {/* Auth Required Message */}
         {!authLoading && !user && (
           <div className="max-w-6xl mx-auto mb-8">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 animate-fade-in">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 animate-fade-in">
               <div className="flex items-center mb-2">
                 <AlertTriangle className="w-5 h-5 text-yellow-500 mr-2" />
-                <h3 className="font-semibold text-yellow-800">Authentication Required</h3>
+                <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Authentication Required</h3>
               </div>
-              <p className="text-sm text-yellow-700 mb-3">
+              <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
                 Please sign in or create an account to use the AI Text Humanizer.
               </p>
               <Button
@@ -206,11 +211,11 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Input Section */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 animate-scale-in">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-scale-in transition-colors">
               <div className="flex items-center mb-4">
                 <FileText className="w-5 h-5 text-purple-600 mr-2" />
-                <h2 className="text-xl font-semibold text-gray-800">Original Text</h2>
-                <span className="ml-auto text-sm text-gray-500">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Original Text</h2>
+                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
                   {inputText.length}/{profile?.user_type === 'standard' ? maxCharacterLimit : '∞'} characters
                 </span>
               </div>
@@ -219,7 +224,7 @@ const Index = () => {
                 placeholder="Paste your AI-generated text here to make it sound more human and natural..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                className="min-h-[300px] resize-none border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-colors"
+                className="min-h-[300px] resize-none border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 disabled={!user}
               />
               
@@ -245,7 +250,7 @@ const Index = () => {
                 <Button
                   onClick={clearAll}
                   variant="outline"
-                  className="px-6 py-3 rounded-xl border-gray-200 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 rounded-xl border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Clear
                 </Button>
@@ -259,24 +264,26 @@ const Index = () => {
             </div>
 
             {/* Output Section */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 animate-scale-in">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-scale-in transition-colors">
               <div className="flex items-center mb-4">
                 <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                <h2 className="text-xl font-semibold text-gray-800">Humanized Text</h2>
-                <span className="ml-auto text-sm text-gray-500">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Humanized Text</h2>
+                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
                   {outputText.length} characters
                 </span>
               </div>
               
-              <div className={`min-h-[300px] p-4 border rounded-xl bg-gray-50 transition-all duration-300 ${
-                outputText ? 'border-green-200 bg-green-50/50' : 'border-gray-200'
+              <div className={`min-h-[300px] p-4 border rounded-xl transition-all duration-300 ${
+                outputText 
+                  ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/20' 
+                  : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'
               }`}>
                 {outputText ? (
-                  <div className="text-gray-800 leading-relaxed animate-fade-in">
+                  <div className="text-gray-800 dark:text-gray-200 leading-relaxed animate-fade-in">
                     {outputText}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400">
+                  <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500">
                     Your humanized text will appear here...
                   </div>
                 )}
@@ -289,7 +296,7 @@ const Index = () => {
                   className={`flex-1 font-medium py-3 rounded-xl transition-all duration-200 ${
                     copied 
                       ? 'bg-green-600 hover:bg-green-700 text-white' 
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                      : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
                   } hover:scale-105 disabled:hover:scale-100`}
                 >
                   {copied ? (
@@ -317,7 +324,7 @@ const Index = () => {
 
           {/* Features Section */}
           <div className="mt-16 text-center animate-fade-in">
-            <h3 className="text-2xl font-bold text-gray-800 mb-8">Why Choose Our Humanizer?</h3>
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-8">Why Choose Our Humanizer?</h3>
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
@@ -336,10 +343,10 @@ const Index = () => {
                   description: "Get humanized text in seconds, ready for immediate use"
                 }
               ].map((feature, index) => (
-                <div key={index} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-200">
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                   <div className="text-3xl mb-3">{feature.icon}</div>
-                  <h4 className="font-semibold text-gray-800 mb-2">{feature.title}</h4>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
+                  <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">{feature.title}</h4>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">{feature.description}</p>
                 </div>
               ))}
             </div>

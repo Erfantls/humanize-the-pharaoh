@@ -1,19 +1,27 @@
 
 import React from 'react';
-import { User, Crown, LogOut, Settings } from 'lucide-react';
+import { User, Crown, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import ThemeToggle from './ThemeToggle';
 
 interface NavigationProps {
   onLoginClick: () => void;
   onUpgradeClick: () => void;
+  isDark: boolean;
+  onThemeToggle: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ onLoginClick, onUpgradeClick }) => {
+const Navigation: React.FC<NavigationProps> = ({ 
+  onLoginClick, 
+  onUpgradeClick, 
+  isDark, 
+  onThemeToggle 
+}) => {
   const { user, profile, signOut, loading } = useAuth();
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm">
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -23,16 +31,18 @@ const Navigation: React.FC<NavigationProps> = ({ onLoginClick, onUpgradeClick })
           </div>
 
           <div className="flex items-center space-x-4">
+            <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
+            
             {loading ? (
               <div className="w-8 h-8 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
             ) : user && profile ? (
               <>
-                <div className="flex items-center space-x-3">
+                <div className="hidden md:flex items-center space-x-3">
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-700">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">
                       {profile.full_name || profile.email}
                     </div>
-                    <div className="flex items-center text-xs text-gray-500">
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                       <Crown className={`w-3 h-3 mr-1 ${
                         profile.user_type === 'premium' ? 'text-yellow-500' : 
                         profile.user_type === 'admin' ? 'text-purple-500' : 'text-gray-400'
@@ -43,8 +53,8 @@ const Navigation: React.FC<NavigationProps> = ({ onLoginClick, onUpgradeClick })
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-xs text-gray-500">Usage</div>
-                    <div className="text-sm font-medium">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Usage</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-200">
                       {profile.monthly_usage_count}/{profile.user_type === 'standard' ? '5' : '∞'}
                     </div>
                   </div>
@@ -57,7 +67,7 @@ const Navigation: React.FC<NavigationProps> = ({ onLoginClick, onUpgradeClick })
                     className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                   >
                     <Crown className="w-4 h-4 mr-2" />
-                    Upgrade
+                    <span className="hidden sm:inline">Upgrade</span>
                   </Button>
                 )}
 
@@ -65,7 +75,7 @@ const Navigation: React.FC<NavigationProps> = ({ onLoginClick, onUpgradeClick })
                   onClick={() => signOut()}
                   variant="ghost"
                   size="sm"
-                  className="text-gray-600 hover:text-gray-800"
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
