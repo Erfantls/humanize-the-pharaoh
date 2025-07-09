@@ -1,29 +1,36 @@
+
 import { useState } from 'react';
-import { Copy, Wand2, FileText, CheckCircle } from 'lucide-react';
+import { Copy, Wand2, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { humanizeText } from '@/utils/textHumanizer';
-import AdBanner from '@/components/AdBanner';
+import { useAuth } from '@/hooks/useAuth';
+import { useUsage } from '@/hooks/useUsage';
+import Navigation from '@/components/Navigation';
+import AuthModal from '@/components/AuthModal';
 import PremiumModal from '@/components/PremiumModal';
-import UsageLimiter from '@/components/UsageLimiter';
 import USDTPaymentModal from '@/components/USDTPaymentModal';
+import PaymentProofModal from '@/components/PaymentProofModal';
 import TextReplacementDisplay from '@/components/TextReplacementDisplay';
+import AdBanner from '@/components/AdBanner';
+import UsageLimiter from '@/components/UsageLimiter';
 
 const Index = () => {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showUSDTModal, setShowUSDTModal] = useState(false);
-  const [usageCount, setUsageCount] = useState(0);
+  const [showPaymentProofModal, setShowPaymentProofModal] = useState(false);
   const [showTopAd, setShowTopAd] = useState(true);
   const [replacements, setReplacements] = useState<Array<{original: string; humanized: string; position: number}>>([]);
+  
+  const { user, profile, loading: authLoading } = useAuth();
+  const { canUseHumanizer, checkCharacterLimit, recordUsage, maxCharacterLimit, currentUsage, maxFreeUsage } = useUsage();
   const { toast } = useToast();
-
-  const MAX_FREE_USAGE = 5;
-  const isLimitReached = usageCount >= MAX_FREE_USAGE;
 
   const handleHumanize = async () => {
     if (!inputText.trim()) {
@@ -35,7 +42,21 @@ const Index = () => {
       return;
     }
 
-    if (isLimitReached) {
+    if (!user || !profile) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (!checkCharacterLimit(inputText)) {
+      toast({
+        title: "Character limit exceeded",
+        description: `Standard users are limited to ${maxCharacterLimit} characters per text.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!canUseHumanizer()) {
       setShowPremiumModal(true);
       return;
     }
@@ -43,28 +64,39 @@ const Index = () => {
     setIsProcessing(true);
     setReplacements([]);
     
-    // Simulate processing with replacement tracking
-    setTimeout(() => {
-      const humanized = humanizeText(inputText);
-      setOutputText(humanized);
-      
-      // Simulate some replacements for demo
-      const mockReplacements = [
-        { original: "it is important to note", humanized: "worth mentioning", position: 0 },
-        { original: "furthermore", humanized: "oh, and another thing", position: 1 },
-        { original: "utilize", humanized: "use", position: 2 },
-        { original: "demonstrate", humanized: "show", position: 3 }
-      ].filter(() => Math.random() > 0.5); // Random selection for demo
-      
-      setReplacements(mockReplacements);
+    try {
+      // Simulate processing with replacement tracking
+      setTimeout(async () => {
+        const humanized = humanizeText(inputText);
+        setOutputText(humanized);
+        
+        // Simulate some replacements for demo
+        const mockReplacements = [
+          { original: "it is important to note", humanized: "worth mentioning", position: 0 },
+          { original: "furthermore", humanized: "oh, and another thing", position: 1 },
+          { original: "utilize", humanized: "use", position: 2 },
+          { original: "demonstrate", humanized: "show", position: 3 }
+        ].filter(() => Math.random() > 0.5);
+        
+        setReplacements(mockReplacements);
+        setIsProcessing(false);
+        
+        // Record usage
+        await recordUsage(inputText.length);
+        
+        toast({
+          title: "Text humanized successfully!",
+          description: "Your text has been transformed to sound more natural.",
+        });
+      }, 1500);
+    } catch (error) {
       setIsProcessing(false);
-      setUsageCount(prev => prev + 1);
-      
       toast({
-        title: "Text humanized successfully!",
-        description: "Your text has been transformed to sound more natural.",
+        title: "Humanization failed",
+        description: "Please try again later.",
+        variant: "destructive"
       });
-    }, 1500);
+    }
   };
 
   const handleCopy = async () => {
@@ -96,14 +128,26 @@ const Index = () => {
   };
 
   const handleUpgradeClick = () => {
-    setShowPremiumModal(false);
-    setShowUSDTModal(true);
+    setShowPremiumModal(true);
+  };
+
+  const handlePaymentMethodSelect = (method: string) => {
+    setShowUSDTModal(false);
+    if (method === 'usdt') {
+      setShowPaymentProofModal(true);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      {/* Navigation */}
+      <Navigation 
+        onLoginClick={() => setShowAuthModal(true)}
+        onUpgradeClick={handleUpgradeClick}
+      />
+
       {/* Top Ad Banner */}
-      {showTopAd && (
+      {showTopAd && user && (
         <AdBanner 
           position="top" 
           onClose={() => setShowTopAd(false)}
@@ -127,13 +171,36 @@ const Index = () => {
         </div>
 
         {/* Usage Limiter */}
-        <div className="max-w-6xl mx-auto mb-8">
-          <UsageLimiter 
-            usageCount={usageCount}
-            maxUsage={MAX_FREE_USAGE}
-            onUpgrade={() => setShowPremiumModal(true)}
-          />
-        </div>
+        {user && profile && profile.user_type === 'standard' && (
+          <div className="max-w-6xl mx-auto mb-8">
+            <UsageLimiter 
+              usageCount={currentUsage}
+              maxUsage={maxFreeUsage}
+              onUpgrade={handleUpgradeClick}
+            />
+          </div>
+        )}
+
+        {/* Auth Required Message */}
+        {!authLoading && !user && (
+          <div className="max-w-6xl mx-auto mb-8">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 animate-fade-in">
+              <div className="flex items-center mb-2">
+                <AlertTriangle className="w-5 h-5 text-yellow-500 mr-2" />
+                <h3 className="font-semibold text-yellow-800">Authentication Required</h3>
+              </div>
+              <p className="text-sm text-yellow-700 mb-3">
+                Please sign in or create an account to use the AI Text Humanizer.
+              </p>
+              <Button
+                onClick={() => setShowAuthModal(true)}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+              >
+                Sign In / Sign Up
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Main Interface */}
         <div className="max-w-6xl mx-auto">
@@ -144,7 +211,7 @@ const Index = () => {
                 <FileText className="w-5 h-5 text-purple-600 mr-2" />
                 <h2 className="text-xl font-semibold text-gray-800">Original Text</h2>
                 <span className="ml-auto text-sm text-gray-500">
-                  {inputText.length} characters
+                  {inputText.length}/{profile?.user_type === 'standard' ? maxCharacterLimit : '∞'} characters
                 </span>
               </div>
               
@@ -153,12 +220,13 @@ const Index = () => {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="min-h-[300px] resize-none border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-colors"
+                disabled={!user}
               />
               
               <div className="flex gap-3 mt-4">
                 <Button
                   onClick={handleHumanize}
-                  disabled={isProcessing || !inputText.trim()}
+                  disabled={isProcessing || !inputText.trim() || !user}
                   className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-3 rounded-xl transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
                 >
                   {isProcessing ? (
@@ -169,7 +237,7 @@ const Index = () => {
                   ) : (
                     <>
                       <Wand2 className="w-4 h-4 mr-2" />
-                      {isLimitReached ? 'Upgrade to Continue' : 'Humanize Text'}
+                      {!user ? 'Sign In to Humanize' : 'Humanize Text'}
                     </>
                   )}
                 </Button>
@@ -241,9 +309,11 @@ const Index = () => {
           </div>
 
           {/* Sidebar Ad */}
-          <div className="mt-8 flex justify-center">
-            <AdBanner position="sidebar" />
-          </div>
+          {user && (
+            <div className="mt-8 flex justify-center">
+              <AdBanner position="sidebar" />
+            </div>
+          )}
 
           {/* Features Section */}
           <div className="mt-16 text-center animate-fade-in">
@@ -277,21 +347,37 @@ const Index = () => {
         </div>
 
         {/* Bottom Ad Banner */}
-        <div className="mt-16">
-          <AdBanner position="bottom" />
-        </div>
+        {user && (
+          <div className="mt-16">
+            <AdBanner position="bottom" />
+          </div>
+        )}
       </div>
 
-      {/* Premium Modal */}
+      {/* Modals */}
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+
       <PremiumModal 
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
+        onUpgrade={() => {
+          setShowPremiumModal(false);
+          setShowUSDTModal(true);
+        }}
       />
 
-      {/* USDT Payment Modal */}
       <USDTPaymentModal 
         isOpen={showUSDTModal}
         onClose={() => setShowUSDTModal(false)}
+        onPaymentMethodSelect={handlePaymentMethodSelect}
+      />
+
+      <PaymentProofModal 
+        isOpen={showPaymentProofModal}
+        onClose={() => setShowPaymentProofModal(false)}
       />
     </div>
   );

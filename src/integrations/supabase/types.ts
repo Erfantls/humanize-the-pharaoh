@@ -14,13 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      payment_proofs: {
+        Row: {
+          admin_notes: string | null
+          amount: number | null
+          currency: string
+          id: string
+          proof_image_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          transaction_hash: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount?: number | null
+          currency?: string
+          id?: string
+          proof_image_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          transaction_hash?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number | null
+          currency?: string
+          id?: string
+          proof_image_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          transaction_hash?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_proofs_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_proofs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          monthly_usage_count: number
+          updated_at: string
+          usage_reset_date: string
+          user_type: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          monthly_usage_count?: number
+          updated_at?: string
+          usage_reset_date?: string
+          user_type?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          monthly_usage_count?: number
+          updated_at?: string
+          usage_reset_date?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
+      usage_logs: {
+        Row: {
+          characters_used: number
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          characters_used: number
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          characters_used?: number
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      reset_monthly_usage: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
