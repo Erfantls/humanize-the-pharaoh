@@ -74,9 +74,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Error fetching profile:', error);
         // If profile doesn't exist, try to create it
         if (error.code === 'PGRST116') {
-          console.log('Profile not found, will be created by trigger');
-          // Wait a bit for the trigger to create the profile
-          setTimeout(() => fetchProfile(userId), 1000);
+          console.log('Profile not found, creating new profile...');
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: user?.email || '',
+              full_name: user?.user_metadata?.full_name || null,
+              user_type: 'standard',
+              monthly_usage_count: 0
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('Error creating profile:', createError);
+          } else if (newProfile) {
+            console.log('Profile created successfully:', newProfile);
+            const profileData: Profile = {
+              id: newProfile.id,
+              email: newProfile.email,
+              full_name: newProfile.full_name,
+              user_type: newProfile.user_type as 'standard' | 'premium' | 'admin',
+              monthly_usage_count: newProfile.monthly_usage_count,
+              usage_reset_date: newProfile.usage_reset_date
+            };
+            setProfile(profileData);
+          }
         }
         return;
       }
@@ -119,7 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Defer profile fetch to prevent conflicts
           setTimeout(() => {
             fetchProfile(session.user.id);
-          }, 500);
+          }, 100);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
         }
@@ -223,12 +247,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       console.log('Sign in successful:', data);
-      
-      // Force page refresh for clean state
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 500);
-      
       return { error: null };
     } catch (error) {
       console.error('Sign in exception:', error);
@@ -240,23 +258,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('Signing out...');
     
     try {
-      // Clean up state first
-      cleanupAuthState();
-      
       // Sign out from Supabase
       await supabase.auth.signOut({ scope: 'global' });
       
-      // Clear local state
+      // Clean up state
+      cleanupAuthState();
       setUser(null);
       setSession(null);
       setProfile(null);
       
-      // Force page refresh
-      window.location.href = '/';
+      console.log('Signed out successfully');
     } catch (error) {
       console.error('Error signing out:', error);
-      // Force refresh even if signout fails
-      window.location.href = '/';
+      // Clean up state even if signout fails
+      cleanupAuthState();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
     }
   };
 

@@ -1,61 +1,43 @@
 
-import { useState } from 'react';
-import { Copy, Wand2, FileText, CheckCircle, AlertTriangle, Sparkles, Zap, Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Zap, Shield, Users, ArrowRight, CheckCircle, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { humanizeText } from '@/utils/textHumanizer';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsage } from '@/hooks/useUsage';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import AuthModal from '@/components/AuthModal';
 import PremiumModal from '@/components/PremiumModal';
-import USDTPaymentModal from '@/components/USDTPaymentModal';
-import PaymentProofModal from '@/components/PaymentProofModal';
-import TextReplacementDisplay from '@/components/TextReplacementDisplay';
-import AdBanner from '@/components/AdBanner';
 import UsageLimiter from '@/components/UsageLimiter';
+import { humanizeText } from '@/utils/textHumanizer';
 
 const Index = () => {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [showUSDTModal, setShowUSDTModal] = useState(false);
-  const [showPaymentProofModal, setShowPaymentProofModal] = useState(false);
-  const [showTopAd, setShowTopAd] = useState(true);
-  const [replacements, setReplacements] = useState<Array<{original: string; humanized: string; position: number}>>([]);
   
-  const { user, profile, loading: authLoading } = useAuth();
-  const { canUseHumanizer, checkCharacterLimit, recordUsage, maxCharacterLimit, currentUsage, maxFreeUsage } = useUsage();
   const { toast } = useToast();
+  const { user, profile, loading: authLoading } = useAuth();
+  const { canUseHumanizer, checkCharacterLimit, recordUsage, loading: usageLoading } = useUsage();
   const { isDark, toggleTheme } = useTheme();
 
-  console.log('Index render - user:', user?.email, 'profile:', profile, 'authLoading:', authLoading);
+  // Auto-close modals when user becomes authenticated
+  useEffect(() => {
+    if (user && profile) {
+      setShowAuthModal(false);
+    }
+  }, [user, profile]);
 
   const handleHumanize = async () => {
-    console.log('Humanize button clicked');
-    
-    // Check authentication first
-    if (!user) {
-      console.log('User not authenticated');
+    if (!user || !profile) {
+      setShowAuthModal(true);
       toast({
         title: "Authentication Required",
-        description: "Please sign in to use the AI Text Humanizer.",
-        variant: "destructive"
-      });
-      setShowAuthModal(true);
-      return;
-    }
-
-    if (!profile) {
-      console.log('Profile not loaded');
-      toast({
-        title: "Profile Loading",
-        description: "Please wait while we load your profile.",
+        description: "Please log in to use the AI Text Humanizer.",
         variant: "destructive"
       });
       return;
@@ -63,8 +45,18 @@ const Index = () => {
 
     if (!inputText.trim()) {
       toast({
-        title: "Please enter some text",
-        description: "Add the text you want to humanize first.",
+        title: "No text provided",
+        description: "Please enter some text to humanize.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!canUseHumanizer()) {
+      setShowPremiumModal(true);
+      toast({
+        title: "Usage limit reached",
+        description: "You've reached your monthly limit. Upgrade to continue.",
         variant: "destructive"
       });
       return;
@@ -72,61 +64,35 @@ const Index = () => {
 
     if (!checkCharacterLimit(inputText)) {
       toast({
-        title: "Character limit exceeded",
-        description: `Standard users are limited to ${maxCharacterLimit} characters per text.`,
+        title: "Text too long",
+        description: "Standard accounts are limited to 10,000 characters. Upgrade for unlimited usage.",
         variant: "destructive"
       });
       return;
     }
 
-    if (!canUseHumanizer()) {
-      toast({
-        title: "Usage limit reached",
-        description: "You've reached your monthly limit. Upgrade to premium for unlimited usage.",
-        variant: "destructive"
-      });
-      setShowPremiumModal(true);
-      return;
-    }
-
-    console.log('Starting humanization process');
     setIsProcessing(true);
-    setReplacements([]);
-    
     try {
-      // Simulate processing with replacement tracking
-      setTimeout(async () => {
-        const humanized = humanizeText(inputText);
-        setOutputText(humanized);
-        
-        // Simulate some replacements for demo
-        const mockReplacements = [
-          { original: "it is important to note", humanized: "worth mentioning", position: 0 },
-          { original: "furthermore", humanized: "oh, and another thing", position: 1 },
-          { original: "utilize", humanized: "use", position: 2 },
-          { original: "demonstrate", humanized: "show", position: 3 }
-        ].filter(() => Math.random() > 0.5);
-        
-        setReplacements(mockReplacements);
-        setIsProcessing(false);
-        
-        // Record usage
-        console.log('Recording usage...');
-        await recordUsage(inputText.length);
-        
-        toast({
-          title: "Text humanized successfully!",
-          description: "Your text has been transformed to sound more natural.",
-        });
-      }, 1500);
+      console.log('Starting humanization process...');
+      const result = await humanizeText(inputText);
+      setOutputText(result);
+      
+      // Record usage
+      await recordUsage(inputText.length);
+      
+      toast({
+        title: "Text humanized successfully!",
+        description: "Your AI-generated text has been transformed to sound more natural.",
+      });
     } catch (error) {
       console.error('Humanization error:', error);
-      setIsProcessing(false);
       toast({
         title: "Humanization failed",
-        description: "Please try again later.",
+        description: "There was an error processing your text. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -135,156 +101,145 @@ const Index = () => {
     
     try {
       await navigator.clipboard.writeText(outputText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      
       toast({
-        title: "Copied to clipboard!",
-        description: "The humanized text is ready to use.",
+        title: "Copied to clipboard",
+        description: "The humanized text has been copied to your clipboard.",
       });
     } catch (error) {
       toast({
-        title: "Failed to copy",
-        description: "Please try copying the text manually.",
+        title: "Copy failed",
+        description: "Failed to copy text to clipboard.",
         variant: "destructive"
       });
     }
   };
 
-  const clearAll = () => {
-    setInputText('');
-    setOutputText('');
-    setCopied(false);
-    setReplacements([]);
-  };
-
-  const handleUpgradeClick = () => {
-    console.log('Upgrade button clicked');
-    setShowPremiumModal(true);
-  };
-
-  const handlePaymentMethodSelect = (method: string) => {
-    setShowUSDTModal(false);
-    if (method === 'usdt') {
-      setShowPaymentProofModal(true);
+  const features = [
+    {
+      icon: <Zap className="w-6 h-6 text-blue-500" />,
+      title: "Advanced AI Detection Bypass",
+      description: "Our sophisticated algorithms transform AI-generated content to pass detection tools while maintaining quality and meaning."
+    },
+    {
+      icon: <Shield className="w-6 h-6 text-green-500" />,
+      title: "Preserve Original Meaning",
+      description: "Your content's core message remains intact while we enhance naturalness and human-like flow."
+    },
+    {
+      icon: <Users className="w-6 h-6 text-purple-500" />,
+      title: "Trusted by Thousands",
+      description: "Join thousands of users who trust our humanizer for their content needs across various industries."
     }
-  };
+  ];
 
-  const isUserAuthenticated = user && profile;
+  const testimonials = [
+    {
+      name: "Sarah M.",
+      role: "Content Creator",
+      content: "This tool has been a game-changer for my content creation workflow. The results are incredibly natural!",
+      rating: 5
+    },
+    {
+      name: "David L.",
+      role: "Student",
+      content: "Perfect for making my essays sound more natural while keeping the original ideas intact.",
+      rating: 5
+    },
+    {
+      name: "Jessica R.",
+      role: "Marketing Manager",
+      content: "Our team uses this daily for creating human-like marketing content. Highly recommended!",
+      rating: 5
+    }
+  ];
+
+  const isAuthenticated = user && profile;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
-      {/* Navigation */}
-      <Navigation 
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 transition-colors">
+      <Navigation
         onLoginClick={() => setShowAuthModal(true)}
-        onUpgradeClick={handleUpgradeClick}
+        onUpgradeClick={() => setShowPremiumModal(true)}
         isDark={isDark}
         onThemeToggle={toggleTheme}
       />
 
-      {/* Top Ad Banner */}
-      {showTopAd && user && (
-        <AdBanner 
-          position="top" 
-          onClose={() => setShowTopAd(false)}
-        />
-      )}
-
-      {/* Header */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="flex items-center justify-center mb-4">
-            <div className="p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl text-white shadow-2xl">
-              <Wand2 className="w-10 h-10" />
+      {/* Hero Section */}
+      <section className="pt-20 pb-32 px-4">
+        <div className="container mx-auto text-center">
+          <div className="max-w-4xl mx-auto">
+            <div className="inline-flex items-center bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full px-6 py-2 mb-8 border border-purple-200 dark:border-purple-800">
+              <Sparkles className="w-5 h-5 text-purple-600 mr-2" />
+              <span className="text-purple-700 dark:text-purple-300 font-medium">
+                AI-Powered Text Humanization
+              </span>
             </div>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6">
-            AI Text Humanizer
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Transform AI-generated content into natural, human-like text that flows naturally and engages readers. 
-            Bypass AI detection with our advanced humanization technology.
-          </p>
-        </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
+              Make AI Text
+              <br />
+              <span className="relative">
+                Human-Like
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"></div>
+              </span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed">
+              Transform AI-generated content into natural, human-sounding text that passes detection tools while preserving your original message and intent.
+            </p>
 
-        {/* Usage Limiter */}
-        {isUserAuthenticated && profile.user_type === 'standard' && (
-          <div className="max-w-6xl mx-auto mb-8">
-            <UsageLimiter 
-              usageCount={currentUsage}
-              maxUsage={maxFreeUsage}
-              onUpgrade={handleUpgradeClick}
-            />
-          </div>
-        )}
-
-        {/* Auth Required Message */}
-        {!authLoading && !user && (
-          <div className="max-w-6xl mx-auto mb-8">
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-200 dark:border-yellow-800 rounded-2xl p-6 animate-fade-in shadow-lg">
-              <div className="flex items-center mb-4">
-                <div className="p-2 bg-yellow-500 rounded-full mr-3">
-                  <AlertTriangle className="w-6 h-6 text-white" />
+            {/* Main Humanizer Tool */}
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 mb-16 border border-gray-200 dark:border-gray-700">
+              {isAuthenticated && (
+                <UsageLimiter
+                  usageCount={profile?.monthly_usage_count || 0}
+                  maxUsage={5}
+                  onUpgrade={() => setShowPremiumModal(true)}
+                />
+              )}
+              
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">AI-Generated Text</h3>
+                  <Textarea
+                    placeholder="Paste your AI-generated text here..."
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    className="min-h-[200px] resize-none border-2 border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400 rounded-xl text-base"
+                    disabled={isProcessing}
+                  />
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    Characters: {inputText.length}/10,000 {!isAuthenticated && '(Login required)'}
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200">Authentication Required</h3>
-              </div>
-              <p className="text-yellow-700 dark:text-yellow-300 mb-4 text-lg">
-                Please sign in or create an account to use the AI Text Humanizer and unlock powerful features.
-              </p>
-              <Button
-                onClick={() => setShowAuthModal(true)}
-                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                Sign In / Sign Up
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {authLoading && (
-          <div className="max-w-6xl mx-auto mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
-              <div className="flex items-center justify-center">
-                <div className="w-8 h-8 animate-spin rounded-full border-2 border-purple-600 border-t-transparent mr-3" />
-                <span className="text-gray-600 dark:text-gray-300">Loading your profile...</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Main Interface */}
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Input Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 animate-scale-in transition-colors border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center mb-6">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg mr-3">
-                  <FileText className="w-6 h-6 text-purple-600" />
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Humanized Text</h3>
+                  <div className="relative">
+                    <Textarea
+                      placeholder="Your humanized text will appear here..."
+                      value={outputText}
+                      readOnly
+                      className="min-h-[200px] resize-none bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-base"
+                    />
+                    {outputText && (
+                      <Button
+                        onClick={handleCopy}
+                        size="sm"
+                        className="absolute top-3 right-3 bg-green-500 hover:bg-green-600 text-white"
+                      >
+                        Copy
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">Original Text</h2>
-                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                  {inputText.length}/{isUserAuthenticated && profile?.user_type === 'standard' ? maxCharacterLimit : '∞'} characters
-                </span>
               </div>
               
-              <Textarea
-                placeholder={isUserAuthenticated 
-                  ? "Paste your AI-generated text here to make it sound more human and natural..." 
-                  : "Please sign in to use the AI Text Humanizer..."
-                }
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                className="min-h-[300px] resize-none border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-lg p-6 rounded-2xl"
-                disabled={!isUserAuthenticated || authLoading}
-              />
-              
-              <div className="flex gap-4 mt-6">
+              <div className="text-center mt-8">
                 <Button
                   onClick={handleHumanize}
-                  disabled={isProcessing || !inputText.trim() || !isUserAuthenticated || authLoading}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 rounded-2xl transition-all duration-200 hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl text-lg"
+                  disabled={isProcessing || authLoading || usageLoading || !inputText.trim()}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 text-lg"
                 >
                   {isProcessing ? (
                     <>
@@ -293,155 +248,94 @@ const Index = () => {
                     </>
                   ) : (
                     <>
-                      <Wand2 className="w-5 h-5 mr-3" />
-                      {!isUserAuthenticated ? 'Sign In to Humanize' : 'Humanize Text'}
-                    </>
-                  )}
-                </Button>
-                
-                <Button
-                  onClick={clearAll}
-                  variant="outline"
-                  className="px-8 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-lg font-medium"
-                >
-                  Clear
-                </Button>
-              </div>
-
-              {/* Text Replacement Display */}
-              <TextReplacementDisplay 
-                replacements={replacements} 
-                isProcessing={isProcessing}
-              />
-            </div>
-
-            {/* Output Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 animate-scale-in transition-colors border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center mb-6">
-                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg mr-3">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">Humanized Text</h2>
-                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                  {outputText.length} characters
-                </span>
-              </div>
-              
-              <div className={`min-h-[300px] p-6 border-2 rounded-2xl transition-all duration-300 ${
-                outputText 
-                  ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/20' 
-                  : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'
-              }`}>
-                {outputText ? (
-                  <div className="text-gray-800 dark:text-gray-200 leading-relaxed animate-fade-in text-lg">
-                    {outputText}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-lg">
-                    Your humanized text will appear here...
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex gap-4 mt-6">
-                <Button
-                  onClick={handleCopy}
-                  disabled={!outputText}
-                  className={`flex-1 font-semibold py-4 rounded-2xl transition-all duration-200 text-lg ${
-                    copied 
-                      ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg' 
-                      : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
-                  } hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl`}
-                >
-                  {copied ? (
-                    <>
-                      <CheckCircle className="w-5 h-5 mr-3" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-5 h-5 mr-3" />
-                      Copy Text
+                      <Sparkles className="w-5 h-5 mr-3" />
+                      Humanize Text
                     </>
                   )}
                 </Button>
               </div>
-            </div>
-          </div>
-
-          {/* Sidebar Ad */}
-          {user && (
-            <div className="mt-12 flex justify-center">
-              <AdBanner position="sidebar" />
-            </div>
-          )}
-
-          {/* Features Section */}
-          <div className="mt-20 text-center animate-fade-in">
-            <h3 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4">Why Choose Our Humanizer?</h3>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto">
-              Experience the most advanced AI text humanization technology available today
-            </p>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: <Shield className="w-12 h-12 text-purple-600" />,
-                  title: "Smart AI Detection Bypass",
-                  description: "Advanced algorithms that make text undetectable by AI checkers and plagiarism detectors"
-                },
-                {
-                  icon: <Sparkles className="w-12 h-12 text-blue-600" />,
-                  title: "Natural Flow",
-                  description: "Creates human-like sentence variations and natural transitions that feel authentic"
-                },
-                {
-                  icon: <Zap className="w-12 h-12 text-green-600" />,
-                  title: "Instant Results",
-                  description: "Get humanized text in seconds, ready for immediate use in any context"
-                }
-              ].map((feature, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-center mb-6">{feature.icon}</div>
-                  <h4 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{feature.title}</h4>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Bottom Ad Banner */}
-        {user && (
-          <div className="mt-20">
-            <AdBanner position="bottom" />
+      {/* Features Section */}
+      <section className="py-20 px-4 bg-white dark:bg-gray-800 transition-colors">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">Why Choose Our Humanizer?</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Our advanced AI technology ensures your content sounds natural while maintaining its original meaning and quality.
+            </p>
           </div>
-        )}
-      </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border border-gray-200 dark:border-gray-600">
+                <div className="mb-6">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 px-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 transition-colors">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">What Our Users Say</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">
+              Join thousands of satisfied users who trust our humanizer
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                  ))}
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 mb-4 italic">"{testimonial.content}"</p>
+                <div>
+                  <div className="font-semibold text-gray-800 dark:text-white">{testimonial.name}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6">Ready to Humanize Your Content?</h2>
+          <p className="text-xl mb-8 opacity-90">
+            Join thousands of users who create natural, human-like content every day
+          </p>
+          <Button
+            onClick={() => !isAuthenticated ? setShowAuthModal(true) : document.querySelector('textarea')?.focus()}
+            className="bg-white text-purple-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 text-lg"
+          >
+            {isAuthenticated ? 'Start Humanizing' : 'Get Started Free'}
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </div>
+      </section>
 
       {/* Modals */}
       <AuthModal 
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
       />
-
+      
       <PremiumModal 
-        isOpen={showPremiumModal}
+        isOpen={showPremiumModal} 
         onClose={() => setShowPremiumModal(false)}
-        onUpgrade={() => {
-          setShowPremiumModal(false);
-          setShowUSDTModal(true);
-        }}
-      />
-
-      <USDTPaymentModal 
-        isOpen={showUSDTModal}
-        onClose={() => setShowUSDTModal(false)}
-        onPaymentMethodSelect={handlePaymentMethodSelect}
-      />
-
-      <PaymentProofModal 
-        isOpen={showPaymentProofModal}
-        onClose={() => setShowPaymentProofModal(false)}
       />
     </div>
   );

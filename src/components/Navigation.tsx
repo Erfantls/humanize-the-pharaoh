@@ -78,11 +78,12 @@ const Navigation: React.FC<NavigationProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
             
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
+                {/* User Info - Hidden on small screens */}
                 <div className="hidden md:flex items-center space-x-3">
                   <div className="text-right">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -106,17 +107,19 @@ const Navigation: React.FC<NavigationProps> = ({
                   </div>
                 </div>
 
+                {/* Upgrade Button - Show for standard users */}
                 {profile.user_type === 'standard' && (
                   <Button
                     onClick={onUpgradeClick}
                     size="sm"
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 font-semibold"
                   >
-                    <Crown className="w-4 h-4 mr-2" />
+                    <Crown className="w-4 h-4 mr-1" />
                     <span className="hidden sm:inline">Upgrade</span>
                   </Button>
                 )}
 
+                {/* Sign Out Button */}
                 <Button
                   onClick={handleSignOut}
                   variant="ghost"
