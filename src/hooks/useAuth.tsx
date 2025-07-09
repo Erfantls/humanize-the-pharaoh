@@ -52,7 +52,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      setProfile(data);
+      // Cast the user_type to the expected type
+      const profileData: Profile = {
+        ...data,
+        user_type: data.user_type as 'standard' | 'premium' | 'admin'
+      };
+
+      setProfile(profileData);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
