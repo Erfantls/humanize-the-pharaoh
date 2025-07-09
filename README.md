@@ -1,73 +1,195 @@
-# Welcome to your Lovable project
 
-## Project info
+# 🤖 AI Text Humanizer
 
-**URL**: https://lovable.dev/projects/0eb531aa-9b7c-46d9-bb41-e622552cff3e
+A powerful web application that transforms AI-generated content into natural, human-sounding text that bypasses AI detection tools while preserving the original meaning and intent.
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
+- **Advanced AI Detection Bypass**: Sophisticated algorithms that transform AI-generated content to pass detection tools
+- **Preserve Original Meaning**: Core message remains intact while enhancing naturalness
+- **User Authentication**: Secure login/signup with Supabase Auth
+- **Usage Tracking**: Monitor monthly usage with limits for different user types
+- **Premium Tiers**: Standard (5 uses/month) and Premium (unlimited) plans
+- **Dark/Light Theme**: Beautiful UI with theme switching
+- **Responsive Design**: Works perfectly on desktop and mobile devices
+- **Real-time Processing**: Fast text humanization with loading states
 
-**Use Lovable**
+## 🚀 Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0eb531aa-9b7c-46d9-bb41-e622552cff3e) and start prompting.
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, Shadcn/UI components
+- **Backend**: Supabase (Auth, Database, RLS)
+- **State Management**: React Query, Context API
+- **Icons**: Lucide React
+- **Deployment**: Lovable Platform
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📱 User Types
 
-**Use your preferred IDE**
+- **Standard Users**: 5 free humanizations per month, 10,000 character limit
+- **Premium Users**: Unlimited humanizations, no character limits
+- **Admin Users**: Full access with admin privileges
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🎯 Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js 18+ and npm/yarn
+- Supabase account (for backend services)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ai-text-humanizer
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+3. **Set up Supabase**
+   - Create a new Supabase project
+   - Run the database migrations (see Database Schema section)
+   - Update the Supabase configuration in `src/integrations/supabase/client.ts`
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+## 🗄️ Database Schema
+
+The application uses the following Supabase tables:
+
+### Profiles Table
+```sql
+- id: UUID (Primary Key, references auth.users)
+- email: TEXT (User's email)
+- full_name: TEXT (User's display name)
+- user_type: TEXT (standard/premium/admin)
+- monthly_usage_count: INTEGER (Current month usage)
+- usage_reset_date: TIMESTAMP (Next reset date)
+- avatar_url: TEXT (Profile picture URL)
+- website: TEXT (User's website)
 ```
 
-**Edit a file directly in GitHub**
+### Usage Logs Table
+```sql
+- id: UUID (Primary Key)
+- user_id: UUID (References profiles.id)
+- characters_used: INTEGER (Characters processed)
+- created_at: TIMESTAMP (Usage timestamp)
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Payment Proofs Table
+```sql
+- id: UUID (Primary Key)
+- user_id: UUID (References profiles.id)
+- transaction_hash: TEXT (Crypto transaction hash)
+- amount: DECIMAL (Payment amount)
+- currency: TEXT (Payment currency)
+- proof_image_url: TEXT (Payment proof image)
+- status: TEXT (pending/approved/rejected)
+- admin_notes: TEXT (Admin review notes)
+```
 
-**Use GitHub Codespaces**
+## 🔐 Authentication Flow
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. **Sign Up**: Users create accounts with email/password
+2. **Email Verification**: Optional email confirmation
+3. **Profile Creation**: Automatic profile creation via database triggers
+4. **Session Management**: Persistent sessions with automatic token refresh
+5. **Usage Tracking**: Real-time usage monitoring and limits
 
-## What technologies are used for this project?
+## 🎨 UI/UX Features
 
-This project is built with:
+- **Responsive Navigation**: Clean header with user info and actions
+- **Theme Toggle**: Seamless dark/light mode switching
+- **Usage Limiter**: Visual progress bars for usage limits
+- **Modal System**: Authentication and upgrade modals
+- **Toast Notifications**: User-friendly feedback messages
+- **Loading States**: Smooth loading animations and spinners
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🔧 Configuration
 
-## How can I deploy this project?
+### Environment Variables
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-Simply open [Lovable](https://lovable.dev/projects/0eb531aa-9b7c-46d9-bb41-e622552cff3e) and click on Share -> Publish.
+### Supabase Configuration
+- **RLS Policies**: Secure row-level security for all tables
+- **Auth Triggers**: Automatic profile creation on user signup
+- **Storage Policies**: Secure file upload for payment proofs
 
-## Can I connect a custom domain to my Lovable project?
+## 📊 Usage Limits
 
-Yes, you can!
+- **Standard Users**: 5 humanizations/month, 10,000 characters max
+- **Premium Users**: Unlimited usage, no character limits
+- **Monthly Reset**: Usage counts reset automatically each month
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🛡️ Security Features
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **Row Level Security**: Database-level access control
+- **Authentication Required**: All features require user authentication
+- **Input Validation**: Comprehensive client and server-side validation
+- **CSRF Protection**: Built-in protection against cross-site attacks
+
+## 🚀 Deployment
+
+The application is deployed on the Lovable platform with:
+- **Automatic Builds**: CI/CD pipeline for seamless deployments
+- **SSL/HTTPS**: Secure connections with automatic SSL certificates
+- **CDN**: Global content delivery for optimal performance
+- **Monitoring**: Built-in analytics and error tracking
+
+## 📝 API Integration
+
+The text humanization feature uses advanced AI algorithms to:
+- Analyze input text patterns
+- Apply natural language transformations
+- Preserve original meaning and context
+- Generate human-like output text
+
+## 🎯 Future Enhancements
+
+- **Bulk Processing**: Handle multiple texts simultaneously
+- **API Access**: RESTful API for developers
+- **Export Options**: PDF, Word, and other format exports
+- **Team Collaboration**: Shared workspaces and projects
+- **Advanced Analytics**: Detailed usage statistics and insights
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+- **Documentation**: Check this README for comprehensive setup instructions
+- **Issues**: Report bugs via GitHub Issues
+- **Community**: Join our Discord community for support
+- **Email**: Contact us at support@aitexthumanizer.com
+
+## 🔗 Links
+
+- [Live Demo](https://your-app-url.lovable.app)
+- [Documentation](https://docs.aitexthumanizer.com)
+- [Supabase Dashboard](https://app.supabase.com)
+- [Lovable Platform](https://lovable.dev)
+
+---
+
+**Built with ❤️ using Lovable - The AI Editor for Web Development**

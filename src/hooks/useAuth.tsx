@@ -10,6 +10,8 @@ interface Profile {
   user_type: 'standard' | 'premium' | 'admin';
   monthly_usage_count: number;
   usage_reset_date: string;
+  avatar_url?: string | null;
+  website?: string | null;
 }
 
 interface AuthContextType {
@@ -97,7 +99,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               full_name: newProfile.full_name,
               user_type: newProfile.user_type as 'standard' | 'premium' | 'admin',
               monthly_usage_count: newProfile.monthly_usage_count,
-              usage_reset_date: newProfile.usage_reset_date
+              usage_reset_date: newProfile.usage_reset_date,
+              avatar_url: newProfile.avatar_url,
+              website: newProfile.website
             };
             setProfile(profileData);
           }
@@ -113,7 +117,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           full_name: data.full_name,
           user_type: data.user_type as 'standard' | 'premium' | 'admin',
           monthly_usage_count: data.monthly_usage_count,
-          usage_reset_date: data.usage_reset_date
+          usage_reset_date: data.usage_reset_date,
+          avatar_url: data.avatar_url,
+          website: data.website
         };
         setProfile(profileData);
       }
