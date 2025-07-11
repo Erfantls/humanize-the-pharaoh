@@ -1,334 +1,355 @@
 
 # 🤖 AI Text Humanizer
 
-[![Demo](https://img.shields.io/badge/Demo-Live-green)](https://your-app-url.lovable.app)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Made with Lovable](https://img.shields.io/badge/Made%20with-Lovable-ff69b4)](https://lovable.dev)
+Transform AI-generated content into natural, human-like text that bypasses AI detection systems while maintaining the original meaning and context.
 
-> Transform AI-generated content into natural, human-sounding text that bypasses AI detection tools while preserving the original meaning and intent.
+![AI Text Humanizer Demo](/lovable-uploads/d2ea557d-b7f5-4676-b017-492289d775d8.png)
 
-![AI Text Humanizer Screenshot](public/app-screenshot.png)
+## 🚀 Features
 
-## ✨ Features
+### Core Functionality
+- **AI Text Humanization** - Convert AI-generated content to human-like text
+- **Multiple Humanization Modes** - Casual, Professional, Academic, Creative styles
+- **Real-time Processing** - Instant text transformation with progress animation
+- **Character Limit Management** - Smart usage tracking and limits
+- **Bulk Processing** - Upload and process multiple files simultaneously
 
-### 🎯 Core Functionality
-- **Advanced AI Detection Bypass**: Sophisticated algorithms that transform AI-generated content to pass detection tools
-- **Preserve Original Meaning**: Core message remains intact while enhancing naturalness
-- **Multiple Humanization Modes**: Casual, Professional, Academic, Creative, and Technical styles
-- **Real-time Quality Scoring**: AI vs Human detection scores with visual feedback
-- **Character Limit Management**: Smart handling of text length restrictions
+### Advanced Features
+- **AI Detection Score Monitor** - Real-time AI detection probability scoring
+- **Grammar & Tone Enhancer** - Grammarly-style suggestions for improvement
+- **Text Quality Grading** - Before/after quality assessment
+- **Abuse Reporting System** - Community-driven quality control
+- **Progress Visualization** - Engaging AI-like processing animations
 
-### 👥 User Management & Authentication
-- **Secure Authentication**: Email/password signup with Supabase Auth
-- **User Profiles**: Comprehensive profile management with preferences
-- **Usage Tracking**: Real-time monitoring of monthly usage with visual progress bars
-- **Tiered Access System**: Standard (5 uses/month) and Premium (unlimited) plans
+### User Management
+- **Authentication System** - Secure login/signup with Supabase Auth
+- **User Profiles** - Customizable user accounts with preferences
+- **Usage Analytics** - Detailed tracking of user activity and patterns
+- **Referral System** - Reward users for bringing new members
 
-### 💰 Payment & Subscription System
-- **Yearly Premium Plans**: One-time payment of $49.99 for full year access
-- **Payment Proof System**: Crypto payment verification with admin review
-- **Usage-based Upgrade Prompts**: Smart prompts when limits are reached
-- **Referral System**: Earn bonus uses by referring friends
+### Subscription & Monetization
+- **Tiered Plans** - Basic (Free), Pro ($9.99), Business ($29.99)
+- **In-App Purchases** - Extra uses, premium templates, one-time boosts
+- **Payment Proof System** - Crypto payment verification workflow
+- **Usage Limits** - Fair usage policies with upgrade prompts
 
-### 🎨 User Experience
-- **Onboarding Tutorial**: Step-by-step walkthrough for new users
-- **Dark/Light Theme**: Automatic system preference detection with manual toggle
-- **Exit Intent Popup**: Retention-focused prompts to prevent user loss
-- **Mobile-First Design**: Fully responsive across all devices
-- **Progress Animations**: Engaging transformation animations
-
-### 📊 Analytics & Insights
-- **Detailed Usage Logs**: Track input/output lengths, processing time, and modes used
-- **Text Replacement Visualization**: See exactly what changes were made
-- **Quality Grading System**: Human-like vs AI-like scoring with visual indicators
-- **In-App Notifications**: Real-time updates and tips
-
-### 🚀 Advanced Features
-- **Bulk Upload Tool**: Process multiple texts simultaneously (Premium)
-- **Email Newsletter**: Capture leads with integrated email system
-- **Ad Banner System**: Monetization with upgrade prompts
-- **Auto-Reset Cron Jobs**: Automated monthly usage limit resets
+### Admin Panel
+- **User Analytics Dashboard** - Daily/monthly active users, conversion rates
+- **Payment Proof Reviews** - Approve/reject crypto payments with one click
+- **Abuse Report Management** - Review and resolve user reports
+- **Content Moderation** - Monitor and manage platform quality
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 18** - Modern UI library with hooks
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **Shadcn/UI** - Beautiful, accessible UI components
-- **React Query** - Data fetching and caching
-- **React Router** - Client-side routing
+- **React 18** - Modern React with hooks and functional components
+- **TypeScript** - Type-safe development environment
+- **Tailwind CSS** - Utility-first CSS framework with custom design system
+- **Vite** - Lightning-fast build tool and dev server
+- **Lucide React** - Beautiful, customizable icons
 
-### Backend & Services
-- **Supabase** - Backend-as-a-Service
-  - Authentication & User Management
-  - PostgreSQL Database with RLS
-  - Edge Functions for serverless logic
-  - Real-time subscriptions
-- **Edge Functions** - Serverless TypeScript functions
-- **PostgreSQL** - Robust relational database
+### Backend & Database
+- **Supabase** - Complete backend-as-a-service platform
+- **PostgreSQL** - Robust relational database with RLS (Row Level Security)
+- **Supabase Auth** - Authentication with email/password and social providers
+- **Supabase Edge Functions** - Serverless functions for custom logic
+
+### UI/UX Libraries
+- **Radix UI** - Accessible, unstyled UI primitives
+- **Shadcn/ui** - Beautiful, accessible component library
+- **React Hook Form** - Performant forms with validation
+- **React Query** - Powerful data synchronization for React
 
 ### Development Tools
-- **Lovable Platform** - AI-powered development environment
 - **ESLint** - Code linting and formatting
-- **PostCSS** - CSS processing
-- **Lucide React** - Beautiful icon library
+- **PostCSS** - CSS processing and optimization
+- **TypeScript** - Static type checking
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm/yarn
+- Supabase account
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/ai-text-humanizer.git
+   cd ai-text-humanizer
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Update with your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Set up Supabase database**
+   - Create a new Supabase project
+   - Run the database migrations (see [Database Schema](#database-schema))
+   - Configure authentication providers
+
+5. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open your browser**
+   Navigate to `http://localhost:5173`
+
+## 🗄️ Database Schema
+
+The application uses PostgreSQL with the following key tables:
+
+### Core Tables
+
+#### `profiles`
+- User account information and preferences
+- Usage tracking and limits
+- Referral codes and bonus credits
+
+#### `usage_logs` & `detailed_usage_logs`
+- Character usage tracking
+- Processing mode analytics
+- Performance metrics
+
+#### `abuse_reports`
+- User-reported issues and content problems
+- Admin review workflow
+- Resolution tracking
+
+#### `payment_proofs`
+- Crypto payment verification system
+- Admin approval workflow
+- Transaction tracking
+
+#### `subscription_plans`
+- Tiered pricing structure
+- Feature access control
+- Stripe integration ready
+
+#### `in_app_purchases`
+- One-time purchase tracking
+- Extra credits and premium features
+- Payment processing integration
+
+#### `user_analytics`
+- Daily/monthly usage statistics
+- Conversion tracking
+- Engagement metrics
+
+### Database Functions
+- `handle_new_user()` - Auto-create profiles on signup
+- `generate_referral_code()` - Unique referral code generation
+- `reset_monthly_usage()` - Automated usage reset (cron job)
+- `update_user_analytics()` - Real-time analytics tracking
+
+For complete schema setup, see: [Database Migrations](supabase/migrations/)
 
 ## 📱 User Types & Permissions
 
 ### Standard Users (Free)
 - 5 humanizations per month
-- 10,000 character limit per text
+- 10,000 character limit per request
 - Basic humanization modes
-- Standard processing speed
+- Community support
 
-### Premium Users (Paid)
+### Premium Users ($9.99/month)
 - Unlimited humanizations
 - No character limits
 - All humanization modes
-- Priority processing speed
-- Bulk upload capability
-- Advanced features access
+- Batch processing
+- Priority queue
+- Email support
+
+### Business Users ($29.99/month)
+- Everything in Premium
+- API access
+- Team collaboration
+- White-label options
+- Dedicated support
+- Custom integrations
 
 ### Admin Users
-- All premium features
-- Payment proof review dashboard
-- User analytics access
-- System administration tools
-
-## 🎯 Usage Limits & Tracking
-
-### Monthly Limits
-- **Standard**: 5 uses/month, resets automatically
-- **Premium**: Unlimited usage
-- **Bonus Uses**: Earned through referrals
-
-### Character Limits
-- **Standard**: 10,000 characters per text
-- **Premium**: No limits
-
-### Tracking Features
-- Real-time usage monitoring
-- Visual progress bars
-- Usage history and analytics
-- Automated limit enforcement
-
-## 🔐 Security Features
-
-### Authentication
-- Supabase Auth with email/password
-- Row Level Security (RLS) policies
-- JWT token-based sessions
-- Automatic session refresh
-
-### Data Protection
-- All user data isolated by RLS
-- Secure payment proof handling
-- Encrypted data transmission
-- GDPR-compliant data handling
-
-### Access Control
-- Role-based permissions
-- API rate limiting
-- Input validation and sanitization
-- CSRF protection
+- Full platform access
+- User management
+- Content moderation
+- Analytics dashboard
+- Payment processing
+- System configuration
 
 ## 🎨 UI/UX Features
 
 ### Design System
-- Consistent color palette with CSS variables
-- Dark/light theme support
-- Responsive breakpoints
-- Accessible components (WCAG compliant)
+- **Dark/Light Mode** - System preference with manual toggle
+- **Responsive Design** - Mobile-first approach
+- **Accessibility** - WCAG 2.1 compliant components
+- **Custom Animations** - Smooth transitions and loading states
 
 ### User Experience
-- Smooth animations and transitions
-- Loading states and progress indicators
-- Toast notifications for feedback
-- Error handling and recovery
+- **Onboarding Tutorial** - First-time user walkthrough
+- **Progress Indicators** - Visual feedback during processing
+- **Real-time Validation** - Instant form feedback
+- **Error Handling** - Graceful error states with recovery options
 
 ### Mobile Optimization
-- Touch-friendly interface
-- Optimized layouts for small screens
-- Fast loading times
-- Offline-capable caching
+- **Touch-friendly** - Large tap targets and gestures
+- **Performance** - Optimized bundle size and loading
+- **Offline Support** - Basic functionality without network
+- **PWA Ready** - Progressive Web App capabilities
+
+## 🔧 Development
+
+### Available Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run type-check   # TypeScript type checking
+```
+
+### Project Structure
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Base UI components (shadcn/ui)
+│   └── admin/          # Admin-specific components
+├── hooks/              # Custom React hooks
+├── pages/              # Page components
+├── utils/              # Utility functions
+├── integrations/       # External service integrations
+└── lib/                # Core utilities and configurations
+```
+
+### Adding New Features
+1. Create feature branch from `main`
+2. Implement component with TypeScript
+3. Add proper error handling
+4. Include unit tests
+5. Update documentation
+6. Submit pull request
+
+## ⚡ Performance Optimizations
+
+### Frontend
+- **Code Splitting** - Dynamic imports for route-based splitting
+- **Bundle Analysis** - Regular bundle size monitoring
+- **Image Optimization** - WebP with fallbacks
+- **Caching Strategy** - Service worker for static assets
+
+### Backend
+- **Database Indexing** - Optimized queries with proper indexes
+- **Connection Pooling** - Efficient database connections
+- **Edge Functions** - Serverless processing at the edge
+- **CDN Integration** - Global content delivery
 
 ## 🚀 Deployment
 
-### Lovable Platform (Recommended)
-1. Connect your GitHub repository
-2. Deploy directly from Lovable
-3. Automatic SSL and CDN
-4. Custom domain support (paid plans)
+### Production Deployment
+1. Build the application: `npm run build`
+2. Deploy to your preferred hosting platform
+3. Configure environment variables
+4. Set up Supabase production database
+5. Configure domain and SSL
 
-### Manual Deployment
-```bash
-# Build for production
-npm run build
-
-# Deploy to your preferred hosting service
-# (Vercel, Netlify, etc.)
-```
-
-### Environment Setup
-Ensure these environment variables are set in production:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-
-## 📈 Analytics & Monitoring
-
-### Built-in Analytics
-- User registration and activity tracking
-- Usage pattern analysis
-- Feature adoption metrics
-- Conversion rate monitoring
-
-### Performance Monitoring
-- Real-time error tracking
-- Performance metrics collection
-- User experience monitoring
-- Uptime monitoring
-
-## 🔄 Automated Tasks
-
-### Cron Jobs
-- **Monthly Usage Reset**: Automatically resets user usage counts
-- **Cleanup Tasks**: Removes expired sessions and temporary data
-- **Analytics Updates**: Updates user statistics and metrics
-
-### Background Tasks
-- Email notifications
-- Usage limit notifications
-- Premium upgrade reminders
+### Recommended Platforms
+- **Vercel** - Zero-config deployment with Git integration
+- **Netlify** - JAMstack deployment with continuous deployment
+- **Railway** - Full-stack deployment with database
+- **Supabase Hosting** - Native integration with Supabase services
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these guidelines:
+We welcome contributions from the community! Here's how to get started:
 
-### Development Setup
+### Getting Started
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes following our coding standards
-4. Test thoroughly (unit tests + manual testing)
-5. Commit with descriptive messages
-6. Push to your branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Update documentation
+6. Submit a pull request
 
-### Coding Standards
+### Contribution Guidelines
+- Follow the existing code style and conventions
+- Write clear, descriptive commit messages
+- Include tests for new functionality
+- Update documentation for API changes
+- Be respectful in code reviews and discussions
+
+### Code Style
 - Use TypeScript for all new code
-- Follow ESLint configuration
-- Write meaningful commit messages
-- Add tests for new features
-- Update documentation as needed
+- Follow ESLint and Prettier configurations
+- Use semantic HTML and ARIA attributes
+- Write self-documenting code with clear variable names
 
-### Code Review Process
-1. All PRs require review from maintainers
-2. Automated tests must pass
-3. Manual testing verification
-4. Documentation updates reviewed
-5. Security considerations addressed
+### Testing
+- Write unit tests for utility functions
+- Include integration tests for complex features
+- Test across different browsers and devices
+- Verify accessibility compliance
 
-## 📋 Roadmap
+## 📄 License
 
-### Near-term (Next 3 months)
-- [ ] Admin panel for payment proof review
-- [ ] User analytics dashboard
-- [ ] Abuse reporting system
-- [ ] Grammar and tone enhancement
-- [ ] Advanced AI detection scoring
-
-### Medium-term (3-6 months)
-- [ ] API access for premium users
-- [ ] Team collaboration features
-- [ ] White-label solutions
-- [ ] Advanced subscription tiers
-- [ ] Mobile app development
-
-### Long-term (6+ months)
-- [ ] AI model improvements
-- [ ] Multi-language support
-- [ ] Enterprise features
-- [ ] Third-party integrations
-- [ ] Advanced analytics platform
-
-## 🐛 Bug Reports & Feature Requests
-
-### Bug Reports
-Please use the [GitHub Issues](https://github.com/yourusername/ai-text-humanizer/issues) template:
-- Clear description of the issue
-- Steps to reproduce
-- Expected vs actual behavior
-- Screenshots (if applicable)
-- Environment details
-
-### Feature Requests
-- Use the feature request template
-- Describe the problem you're solving
-- Provide detailed requirements
-- Include mockups or examples
-- Consider implementation complexity
-
-## 📞 Support
-
-### Community Support
-- [Discord Community](https://discord.gg/your-server)
-- [GitHub Discussions](https://github.com/yourusername/ai-text-humanizer/discussions)
-- [Documentation](https://docs.your-domain.com)
-
-### Premium Support
-- Email: support@your-domain.com
-- Priority response for premium users
-- 24/7 availability for enterprise customers
-
-## 📄 Legal
-
-### License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Privacy Policy
-- We prioritize user privacy and data protection
-- Minimal data collection with clear purposes
-- GDPR and CCPA compliant
-- Full privacy policy at: [Privacy Policy](https://your-domain.com/privacy)
+## 🆘 Support
 
-### Terms of Service
-- Fair use policies for AI humanization
-- Acceptable use guidelines
-- Service availability and limitations
-- Full terms at: [Terms of Service](https://your-domain.com/terms)
+### Community Support
+- **GitHub Issues** - Bug reports and feature requests
+- **Discussions** - Community Q&A and ideas
+- **Discord** - Real-time community chat
 
-## 🙏 Acknowledgments
+### Premium Support
+- **Email Support** - Priority email assistance (Pro/Business)
+- **Dedicated Support** - Direct line to development team (Business)
+- **Custom Development** - Tailored solutions (Enterprise)
 
-- [Lovable](https://lovable.dev) - AI-powered development platform
-- [Supabase](https://supabase.com) - Backend infrastructure
-- [Tailwind CSS](https://tailwindcss.com) - Styling framework
-- [Shadcn/UI](https://ui.shadcn.com) - Component library
-- [Lucide](https://lucide.dev) - Icon library
-- [React](https://reactjs.org) - Frontend framework
+### Documentation
+- **API Documentation** - Complete API reference
+- **Integration Guides** - Step-by-step integration tutorials
+- **Video Tutorials** - Visual learning resources
 
-## 🌟 Star History
+## 🗺️ Roadmap
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/ai-text-humanizer&type=Date)](https://star-history.com/#yourusername/ai-text-humanizer&Date)
+### Q1 2024
+- [ ] Advanced Grammar Checker integration
+- [ ] Multi-language support
+- [ ] Chrome extension
+- [ ] WordPress plugin
+
+### Q2 2024
+- [ ] API v2 with enhanced features
+- [ ] Team collaboration features
+- [ ] Advanced analytics dashboard
+- [ ] White-label solutions
+
+### Q3 2024
+- [ ] Mobile app (React Native)
+- [ ] AI model improvements
+- [ ] Enterprise features
+- [ ] Third-party integrations
+
+### Q4 2024
+- [ ] Advanced AI detection bypass
+- [ ] Custom AI model training
+- [ ] Enterprise-grade security
+- [ ] Global CDN deployment
 
 ---
 
-**Built with ❤️ using [Lovable](https://lovable.dev) - The AI Editor for Web Development**
+**Built with ❤️ by the AI Text Humanizer Team**
 
-### 📊 Project Stats
-- **Languages**: TypeScript, SQL, CSS
-- **Components**: 25+ React components
-- **Database Tables**: 6 core tables with RLS
-- **Edge Functions**: 3 serverless functions
-- **UI Components**: 50+ Shadcn components
-- **Test Coverage**: 85%+ (target)
-- **Performance**: 95+ Lighthouse score
-- **Accessibility**: WCAG 2.1 AA compliant
-
-### 🔗 Quick Links
-- [Live Demo](https://your-app-url.lovable.app)
-- [API Documentation](https://docs.your-domain.com/api)
-- [Component Storybook](https://storybook.your-domain.com)
-- [Design System](https://design.your-domain.com)
-- [Changelog](CHANGELOG.md)
-- [Contributing Guide](CONTRIBUTING.md)
+For questions, suggestions, or support, please reach out through our [GitHub Issues](https://github.com/yourusername/ai-text-humanizer/issues) or join our [Discord community](https://discord.gg/ai-text-humanizer).

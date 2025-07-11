@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Copy, Wand2, RefreshCw, Users, Upload, FileText, Mail } from 'lucide-react';
+import { Copy, Wand2, RefreshCw, Users, Upload, FileText, Mail, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsage } from '@/hooks/useUsage';
@@ -22,7 +23,14 @@ import BulkUploadTool from '@/components/BulkUploadTool';
 import InAppNotifications from '@/components/InAppNotifications';
 import ReferralSystem from '@/components/ReferralSystem';
 import AdBanner from '@/components/AdBanner';
+import ProgressAnimation from '@/components/ProgressAnimation';
+import SubscriptionPlans from '@/components/SubscriptionPlans';
+import InAppPurchases from '@/components/InAppPurchases';
+import GrammarToneEnhancer from '@/components/GrammarToneEnhancer';
+import AIDetectionScoreMonitor from '@/components/AIDetectionScoreMonitor';
+import AbuseReportingTool from '@/components/admin/AbuseReportingTool';
 import { useTheme } from '@/hooks/useTheme';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [inputText, setInputText] = useState('');
@@ -39,6 +47,10 @@ const Index = () => {
   const [selectedMode, setSelectedMode] = useState('casual');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showReferralSystem, setShowReferralSystem] = useState(false);
+  const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
+  const [showInAppPurchases, setShowInAppPurchases] = useState(false);
+  const [showGrammarEnhancer, setShowGrammarEnhancer] = useState(false);
+  const [showAbuseReporting, setShowAbuseReporting] = useState(false);
   
   const outputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -197,6 +209,15 @@ const Index = () => {
                 </Button>
                 
                 <Button
+                  onClick={() => setShowSubscriptionPlans(true)}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Plans</span>
+                </Button>
+                
+                <Button
                   onClick={() => setShowEmailCapture(true)}
                   variant="outline"
                   className="flex items-center space-x-2"
@@ -204,6 +225,15 @@ const Index = () => {
                   <Mail className="w-4 h-4" />
                   <span>Newsletter</span>
                 </Button>
+
+                {profile?.user_type === 'admin' && (
+                  <Link to="/admin">
+                    <Button variant="outline" className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4" />
+                      <span>Admin Panel</span>
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -224,9 +254,19 @@ const Index = () => {
 
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Original Text
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Original Text
+                    </label>
+                    <Button
+                      onClick={() => setShowGrammarEnhancer(true)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs"
+                    >
+                      Grammar Check
+                    </Button>
+                  </div>
                   <Textarea
                     placeholder="Paste your AI-generated text here..."
                     value={inputText}
@@ -242,9 +282,21 @@ const Index = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Humanized Text
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Humanized Text
+                    </label>
+                    {outputText && (
+                      <Button
+                        onClick={() => setShowAbuseReporting(true)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-red-600 hover:text-red-700"
+                      >
+                        Report Issue
+                      </Button>
+                    )}
+                  </div>
                   <Textarea
                     ref={outputRef}
                     placeholder="Your humanized text will appear here..."
@@ -290,6 +342,12 @@ const Index = () => {
                 </Button>
               </div>
 
+              {isProcessing && (
+                <div className="mt-6">
+                  <ProgressAnimation />
+                </div>
+              )}
+
               {outputText && (
                 <div className="mt-8 space-y-6">
                   <HumanizationPreview
@@ -300,6 +358,13 @@ const Index = () => {
                   <OutputQualityGrading
                     humanScore={humanScore}
                     aiScore={aiScore}
+                  />
+
+                  <AIDetectionScoreMonitor
+                    originalText={inputText}
+                    humanizedText={outputText}
+                    aiScore={aiScore}
+                    humanScore={humanScore}
                   />
                 </div>
               )}
@@ -355,6 +420,30 @@ const Index = () => {
       <ReferralSystem
         isOpen={showReferralSystem}
         onClose={() => setShowReferralSystem(false)}
+      />
+
+      <SubscriptionPlans
+        isOpen={showSubscriptionPlans}
+        onClose={() => setShowSubscriptionPlans(false)}
+      />
+
+      <InAppPurchases
+        isOpen={showInAppPurchases}
+        onClose={() => setShowInAppPurchases(false)}
+      />
+
+      <GrammarToneEnhancer
+        isOpen={showGrammarEnhancer}
+        onClose={() => setShowGrammarEnhancer(false)}
+        text={inputText}
+        onTextUpdate={setInputText}
+      />
+
+      <AbuseReportingTool
+        isOpen={showAbuseReporting}
+        onClose={() => setShowAbuseReporting(false)}
+        inputText={inputText}
+        outputText={outputText}
       />
     </div>
   );

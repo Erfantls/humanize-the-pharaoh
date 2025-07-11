@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      abuse_reports: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          input_text: string
+          output_text: string
+          report_details: string | null
+          report_reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          input_text: string
+          output_text: string
+          report_details?: string | null
+          report_reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          input_text?: string
+          output_text?: string
+          report_details?: string | null
+          report_reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abuse_reports_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       detailed_usage_logs: {
         Row: {
           characters_used: number
@@ -68,6 +118,81 @@ export type Database = {
           id?: string
           source?: string | null
           subscribed?: boolean | null
+        }
+        Relationships: []
+      }
+      grammar_suggestions: {
+        Row: {
+          applied: boolean | null
+          confidence_score: number | null
+          created_at: string
+          id: string
+          original_text: string
+          position_end: number
+          position_start: number
+          suggestion: string
+          suggestion_type: string
+          user_id: string | null
+        }
+        Insert: {
+          applied?: boolean | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          original_text: string
+          position_end: number
+          position_start: number
+          suggestion: string
+          suggestion_type: string
+          user_id?: string | null
+        }
+        Update: {
+          applied?: boolean | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          original_text?: string
+          position_end?: number
+          position_start?: number
+          suggestion?: string
+          suggestion_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      in_app_purchases: {
+        Row: {
+          created_at: string
+          currency: string | null
+          id: string
+          price: number
+          purchase_type: string
+          quantity: number
+          status: string | null
+          stripe_payment_intent_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          price: number
+          purchase_type: string
+          quantity: number
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          price?: number
+          purchase_type?: string
+          quantity?: number
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -209,6 +334,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          character_limit: number | null
+          created_at: string
+          currency: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          monthly_uses: number | null
+          name: string
+          price: number
+          stripe_price_id: string | null
+        }
+        Insert: {
+          character_limit?: number | null
+          created_at?: string
+          currency?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          monthly_uses?: number | null
+          name: string
+          price: number
+          stripe_price_id?: string | null
+        }
+        Update: {
+          character_limit?: number | null
+          created_at?: string
+          currency?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          monthly_uses?: number | null
+          name?: string
+          price?: number
+          stripe_price_id?: string | null
+        }
+        Relationships: []
+      }
       usage_logs: {
         Row: {
           characters_used: number
@@ -238,6 +402,39 @@ export type Database = {
           },
         ]
       }
+      user_analytics: {
+        Row: {
+          characters_processed: number | null
+          created_at: string
+          daily_uses: number | null
+          date: string
+          id: string
+          last_active: string | null
+          session_duration: number | null
+          user_id: string | null
+        }
+        Insert: {
+          characters_processed?: number | null
+          created_at?: string
+          daily_uses?: number | null
+          date?: string
+          id?: string
+          last_active?: string | null
+          session_duration?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          characters_processed?: number | null
+          created_at?: string
+          daily_uses?: number | null
+          date?: string
+          id?: string
+          last_active?: string | null
+          session_duration?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -245,6 +442,14 @@ export type Database = {
     Functions: {
       reset_monthly_usage: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_user_analytics: {
+        Args: {
+          p_user_id: string
+          p_characters_processed?: number
+          p_session_duration?: number
+        }
         Returns: undefined
       }
     }
