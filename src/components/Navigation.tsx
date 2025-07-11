@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { Menu, X, Crown, User, LogOut, Sun, Moon, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import InAppNotifications from '@/components/InAppNotifications';
 
 interface NavigationProps {
   onLoginClick: () => void;
@@ -58,6 +60,9 @@ const Navigation: React.FC<NavigationProps> = ({
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Notifications */}
+            {user && <InAppNotifications />}
+            
             {/* Theme Toggle */}
             <Button
               onClick={onThemeToggle}
@@ -136,6 +141,8 @@ const Navigation: React.FC<NavigationProps> = ({
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
+            {user && <InAppNotifications />}
+            
             <Button
               onClick={onThemeToggle}
               variant="ghost"

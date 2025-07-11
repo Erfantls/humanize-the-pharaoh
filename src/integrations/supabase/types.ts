@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      detailed_usage_logs: {
+        Row: {
+          characters_used: number
+          created_at: string
+          id: string
+          input_text_length: number | null
+          mode_used: string | null
+          output_text_length: number | null
+          processing_time_ms: number | null
+          user_id: string
+        }
+        Insert: {
+          characters_used: number
+          created_at?: string
+          id?: string
+          input_text_length?: number | null
+          mode_used?: string | null
+          output_text_length?: number | null
+          processing_time_ms?: number | null
+          user_id: string
+        }
+        Update: {
+          characters_used?: number
+          created_at?: string
+          id?: string
+          input_text_length?: number | null
+          mode_used?: string | null
+          output_text_length?: number | null
+          processing_time_ms?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_captures: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+          subscribed: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+          subscribed?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+          subscribed?: boolean | null
+        }
+        Relationships: []
+      }
       payment_proofs: {
         Row: {
           admin_notes: string | null
@@ -74,11 +131,14 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bonus_uses: number | null
           created_at: string
           email: string
           full_name: string | null
           id: string
           monthly_usage_count: number
+          preferred_mode: string | null
+          referral_code: string | null
           updated_at: string
           usage_reset_date: string
           user_type: string
@@ -86,11 +146,14 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bonus_uses?: number | null
           created_at?: string
           email: string
           full_name?: string | null
           id: string
           monthly_usage_count?: number
+          preferred_mode?: string | null
+          referral_code?: string | null
           updated_at?: string
           usage_reset_date?: string
           user_type?: string
@@ -98,15 +161,51 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bonus_uses?: number | null
           created_at?: string
           email?: string
           full_name?: string | null
           id?: string
           monthly_usage_count?: number
+          preferred_mode?: string | null
+          referral_code?: string | null
           updated_at?: string
           usage_reset_date?: string
           user_type?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referred_email: string
+          referred_user_id: string | null
+          referrer_id: string
+          reward_granted: boolean | null
+          status: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referred_email: string
+          referred_user_id?: string | null
+          referrer_id: string
+          reward_granted?: boolean | null
+          status?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referred_email?: string
+          referred_user_id?: string | null
+          referrer_id?: string
+          reward_granted?: boolean | null
+          status?: string | null
         }
         Relationships: []
       }

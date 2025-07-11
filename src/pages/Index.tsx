@@ -1,100 +1,124 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles, Zap, Shield, Users, ArrowRight, CheckCircle, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Copy, Wand2, RefreshCw, Users, Upload, FileText, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsage } from '@/hooks/useUsage';
-import { useTheme } from '@/hooks/useTheme';
+import { humanizeText } from '@/utils/textHumanizer';
 import Navigation from '@/components/Navigation';
 import AuthModal from '@/components/AuthModal';
-import YearlyPaymentModal from '@/components/YearlyPaymentModal';
 import UsageLimiter from '@/components/UsageLimiter';
-import HumanizationPreview from '@/components/HumanizationPreview';
 import UpgradePrompt from '@/components/UpgradePrompt';
-import { humanizeText } from '@/utils/textHumanizer';
+import YearlyPaymentModal from '@/components/YearlyPaymentModal';
+import HumanizationPreview from '@/components/HumanizationPreview';
+import TextReplacementDisplay from '@/components/TextReplacementDisplay';
+import OnboardingWalkthrough from '@/components/OnboardingWalkthrough';
+import ExitIntentPopup from '@/components/ExitIntentPopup';
+import EmailCapture from '@/components/EmailCapture';
+import HumanizationModes from '@/components/HumanizationModes';
+import OutputQualityGrading from '@/components/OutputQualityGrading';
+import BulkUploadTool from '@/components/BulkUploadTool';
+import InAppNotifications from '@/components/InAppNotifications';
+import ReferralSystem from '@/components/ReferralSystem';
+import AdBanner from '@/components/AdBanner';
+import { useTheme } from '@/hooks/useTheme';
 
 const Index = () => {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState<'usage_limit' | 'character_limit' | 'feature_locked'>('usage_limit');
+  const [replacements, setReplacements] = useState<Array<{ original: string; humanized: string; position: number }>>([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showExitIntent, setShowExitIntent] = useState(false);
+  const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [selectedMode, setSelectedMode] = useState('casual');
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showReferralSystem, setShowReferralSystem] = useState(false);
   
+  const outputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
-  const { user, profile, loading: authLoading } = useAuth();
-  const { canUseHumanizer, checkCharacterLimit, recordUsage, loading: usageLoading } = useUsage();
-  const { isDark, toggleTheme } = useTheme();
+  const { user, profile } = useAuth();
+  const { canUseHumanizer, checkCharacterLimit, recordUsage, currentUsage, maxFreeUsage, userType } = useUsage();
+  const { isDark, toggleTheme, themePreference, getThemeIcon } = useTheme();
 
-  // Auto-close modals when user becomes authenticated
+  // Quality scores (simulated)
+  const [humanScore, setHumanScore] = useState(0);
+  const [aiScore, setAiScore] = useState(0);
+
   useEffect(() => {
-    if (user && profile) {
-      setShowAuthModal(false);
+    // Show onboarding for new users
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding && !user) {
+      setShowOnboarding(true);
     }
-  }, [user, profile]);
+  }, [user]);
+
+  const handleOnboardingClose = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('hasSeenOnboarding', 'true');
+  };
 
   const handleHumanize = async () => {
-    if (!user || !profile) {
-      setShowAuthModal(true);
+    if (!inputText.trim()) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to use the AI Text Humanizer.",
+        title: "Please enter some text",
+        description: "Add text to humanize before proceeding.",
         variant: "destructive"
       });
       return;
     }
 
-    if (!inputText.trim()) {
-      toast({
-        title: "No text provided",
-        description: "Please enter some text to humanize.",
-        variant: "destructive"
-      });
+    if (!user) {
+      setShowAuthModal(true);
       return;
     }
 
     if (!canUseHumanizer()) {
       setUpgradeReason('usage_limit');
       setShowUpgradePrompt(true);
-      toast({
-        title: "Usage limit reached",
-        description: "You've reached your monthly limit. Upgrade to continue.",
-        variant: "destructive"
-      });
       return;
     }
 
     if (!checkCharacterLimit(inputText)) {
       setUpgradeReason('character_limit');
       setShowUpgradePrompt(true);
-      toast({
-        title: "Text too long",
-        description: "Standard accounts are limited to 10,000 characters. Upgrade for unlimited usage.",
-        variant: "destructive"
-      });
       return;
     }
 
     setIsProcessing(true);
+    setReplacements([]);
+    
     try {
-      console.log('Starting humanization process...');
-      const result = await humanizeText(inputText);
-      setOutputText(result);
+      const result = await humanizeText(inputText, selectedMode);
+      setOutputText(result.humanizedText);
+      setReplacements(result.replacements || []);
       
-      // Record usage
+      // Simulate quality scores
+      setHumanScore(Math.floor(Math.random() * 30) + 70); // 70-100
+      setAiScore(Math.floor(Math.random() * 40) + 10); // 10-50
+      
       await recordUsage(inputText.length);
       
       toast({
         title: "Text humanized successfully!",
-        description: "Your AI-generated text has been transformed to sound more natural.",
+        description: `Processed ${inputText.length} characters with ${result.replacements?.length || 0} improvements.`,
+        variant: "default"
       });
+
+      // Show email capture for non-premium users occasionally
+      if (userType === 'standard' && Math.random() < 0.3) {
+        setTimeout(() => setShowEmailCapture(true), 2000);
+      }
     } catch (error) {
       console.error('Humanization error:', error);
       toast({
-        title: "Humanization failed",
-        description: "There was an error processing your text. Please try again.",
+        title: "Error",
+        description: "Failed to humanize text. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -108,13 +132,14 @@ const Index = () => {
     try {
       await navigator.clipboard.writeText(outputText);
       toast({
-        title: "Copied to clipboard",
-        description: "The humanized text has been copied to your clipboard.",
+        title: "Copied to clipboard!",
+        description: "Humanized text copied successfully.",
+        variant: "default"
       });
     } catch (error) {
       toast({
         title: "Copy failed",
-        description: "Failed to copy text to clipboard.",
+        description: "Please select and copy the text manually.",
         variant: "destructive"
       });
     }
@@ -125,240 +150,172 @@ const Index = () => {
     setShowPaymentModal(true);
   };
 
-  const features = [
-    {
-      icon: <Zap className="w-6 h-6 text-blue-500" />,
-      title: "Advanced AI Detection Bypass",
-      description: "Our sophisticated algorithms transform AI-generated content to pass detection tools while maintaining quality and meaning."
-    },
-    {
-      icon: <Shield className="w-6 h-6 text-green-500" />,
-      title: "Preserve Original Meaning",
-      description: "Your content's core message remains intact while we enhance naturalness and human-like flow."
-    },
-    {
-      icon: <Users className="w-6 h-6 text-purple-500" />,
-      title: "Trusted by Thousands",
-      description: "Join thousands of users who trust our humanizer for their content needs across various industries."
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Sarah M.",
-      role: "Content Creator",
-      content: "This tool has been a game-changer for my content creation workflow. The results are incredibly natural!",
-      rating: 5
-    },
-    {
-      name: "David L.",
-      role: "Student",
-      content: "Perfect for making my essays sound more natural while keeping the original ideas intact.",
-      rating: 5
-    },
-    {
-      name: "Jessica R.",
-      role: "Marketing Manager",
-      content: "Our team uses this daily for creating human-like marketing content. Highly recommended!",
-      rating: 5
-    }
-  ];
-
-  const isAuthenticated = user && profile;
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 transition-colors">
-      <Navigation
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <Navigation 
         onLoginClick={() => setShowAuthModal(true)}
         onUpgradeClick={() => setShowPaymentModal(true)}
         isDark={isDark}
         onThemeToggle={toggleTheme}
+        themePreference={themePreference}
+        getThemeIcon={getThemeIcon}
       />
 
-      {/* Hero Section */}
-      <section className="pt-20 pb-32 px-4">
-        <div className="container mx-auto text-center">
-          <div className="max-w-4xl mx-auto">
-            <div className="inline-flex items-center bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full px-6 py-2 mb-8 border border-purple-200 dark:border-purple-800">
-              <Sparkles className="w-5 h-5 text-purple-600 mr-2" />
-              <span className="text-purple-700 dark:text-purple-300 font-medium">
-                AI-Powered Text Humanization
-              </span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
-              Make AI Text
-              <br />
-              <span className="relative">
-                Human-Like
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"></div>
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed">
-              Transform AI-generated content into natural, human-sounding text that passes detection tools while preserving your original message and intent.
-            </p>
+      <AdBanner onUpgrade={() => setShowPaymentModal(true)} />
 
-            {/* Main Humanizer Tool */}
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 mb-16 border border-gray-200 dark:border-gray-700">
-              {isAuthenticated && (
-                <UsageLimiter
-                  usageCount={profile?.monthly_usage_count || 0}
-                  maxUsage={5}
-                  onUpgrade={() => setShowPaymentModal(true)}
-                />
-              )}
+      <div className="pt-20 pb-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-800 dark:text-white mb-6 animate-fade-in">
+                AI Text{' '}
+                <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  Humanizer
+                </span>
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 animate-fade-in max-w-2xl mx-auto">
+                Transform AI-generated content into natural, human-like text that bypasses detection systems while maintaining original meaning.
+              </p>
               
+              <div className="flex flex-wrap justify-center gap-4 mb-8">
+                <Button
+                  onClick={() => setShowBulkUpload(true)}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Bulk Upload</span>
+                </Button>
+                
+                <Button
+                  onClick={() => setShowReferralSystem(true)}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Refer Friends</span>
+                </Button>
+                
+                <Button
+                  onClick={() => setShowEmailCapture(true)}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Newsletter</span>
+                </Button>
+              </div>
+            </div>
+
+            {user && profile && (
+              <UsageLimiter
+                usageCount={currentUsage}
+                maxUsage={maxFreeUsage}
+                onUpgrade={() => setShowPaymentModal(true)}
+              />
+            )}
+
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8 animate-scale-in border border-gray-200 dark:border-gray-700">
+              <HumanizationModes
+                selectedMode={selectedMode}
+                onModeChange={setSelectedMode}
+                userType={userType}
+              />
+
               <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">AI-Generated Text</h3>
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Original Text
+                  </label>
                   <Textarea
                     placeholder="Paste your AI-generated text here..."
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    className="min-h-[200px] resize-none border-2 border-gray-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-400 rounded-xl text-base"
-                    disabled={isProcessing}
+                    className="min-h-[300px] resize-none border-gray-300 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500"
                   />
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    Characters: {inputText.length}/10,000 {!isAuthenticated && '(Login required)'}
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Humanized Text</h3>
-                  <div className="relative">
-                    <Textarea
-                      placeholder="Your humanized text will appear here..."
-                      value={outputText}
-                      readOnly
-                      className="min-h-[200px] resize-none bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-base"
-                    />
-                    {outputText && (
-                      <Button
-                        onClick={handleCopy}
-                        size="sm"
-                        className="absolute top-3 right-3 bg-green-500 hover:bg-green-600 text-white"
-                      >
-                        Copy
-                      </Button>
+                  <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                    <span>{inputText.length} characters</span>
+                    {userType === 'standard' && (
+                      <span>Limit: 10,000 characters</span>
                     )}
                   </div>
                 </div>
+
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Humanized Text
+                  </label>
+                  <Textarea
+                    ref={outputRef}
+                    placeholder="Your humanized text will appear here..."
+                    value={outputText}
+                    readOnly
+                    className="min-h-[300px] resize-none bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {outputText.length} characters
+                    </span>
+                    <Button
+                      onClick={handleCopy}
+                      disabled={!outputText}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center space-x-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span>Copy</span>
+                    </Button>
+                  </div>
+                </div>
               </div>
-              
-              <div className="text-center mt-8">
+
+              <div className="mt-8 text-center">
                 <Button
                   onClick={handleHumanize}
-                  disabled={isProcessing || authLoading || usageLoading || !inputText.trim()}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 text-lg"
+                  disabled={isProcessing || !inputText.trim()}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {isProcessing ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3" />
+                      <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
                       Humanizing...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5 mr-3" />
+                      <Wand2 className="w-5 h-5 mr-2" />
                       Humanize Text
                     </>
                   )}
                 </Button>
               </div>
 
-              {/* Add the preview component */}
               {outputText && (
-                <HumanizationPreview
-                  originalText={inputText}
-                  humanizedText={outputText}
-                />
+                <div className="mt-8 space-y-6">
+                  <HumanizationPreview
+                    originalText={inputText}
+                    humanizedText={outputText}
+                  />
+                  
+                  <OutputQualityGrading
+                    humanScore={humanScore}
+                    aiScore={aiScore}
+                  />
+                </div>
               )}
+
+              <TextReplacementDisplay
+                replacements={replacements}
+                isProcessing={isProcessing}
+              />
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="py-20 px-4 bg-white dark:bg-gray-800 transition-colors">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">Why Choose Our Humanizer?</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Our advanced AI technology ensures your content sounds natural while maintaining its original meaning and quality.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border border-gray-200 dark:border-gray-600">
-                <div className="mb-6">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 px-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 transition-colors">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 text-gray-800 dark:text-white">What Our Users Say</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Join thousands of satisfied users who trust our humanizer
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 mb-4 italic">"{testimonial.content}"</p>
-                <div>
-                  <div className="font-semibold text-gray-800 dark:text-white">{testimonial.name}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 px-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-        <div className="container mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Humanize Your Content?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Get unlimited access for a full year - no recurring charges!
-          </p>
-          <Button
-            onClick={() => !isAuthenticated ? setShowAuthModal(true) : setShowPaymentModal(true)}
-            className="bg-white text-purple-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 text-lg"
-          >
-            {isAuthenticated ? 'Upgrade to Yearly Premium' : 'Get Started Free'}
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </div>
-      </section>
-
-      {/* Modals */}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-      />
-      
-      <YearlyPaymentModal 
-        isOpen={showPaymentModal} 
-        onClose={() => setShowPaymentModal(false)}
-        onUpgrade={() => {
-          setShowPaymentModal(false);
-          toast({
-            title: "Redirecting to payment...",
-            description: "You'll be redirected to our secure payment processor.",
-          });
-        }}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
       />
 
       <UpgradePrompt
@@ -366,8 +323,38 @@ const Index = () => {
         onClose={() => setShowUpgradePrompt(false)}
         onUpgrade={handleUpgrade}
         reason={upgradeReason}
-        currentUsage={profile?.monthly_usage_count || 0}
-        maxUsage={5}
+        currentUsage={currentUsage}
+        maxUsage={maxFreeUsage}
+      />
+
+      <YearlyPaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+      />
+
+      <OnboardingWalkthrough
+        isOpen={showOnboarding}
+        onClose={handleOnboardingClose}
+      />
+
+      <ExitIntentPopup
+        onUpgrade={() => setShowPaymentModal(true)}
+      />
+
+      <EmailCapture
+        isOpen={showEmailCapture}
+        onClose={() => setShowEmailCapture(false)}
+        source="homepage"
+      />
+
+      <BulkUploadTool
+        isOpen={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+      />
+
+      <ReferralSystem
+        isOpen={showReferralSystem}
+        onClose={() => setShowReferralSystem(false)}
       />
     </div>
   );
