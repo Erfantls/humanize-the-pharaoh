@@ -1,22 +1,31 @@
-
 // Ultra-advanced text humanization utility for maximum AI detection bypass
-export function humanizeText(text: string): string {
-  if (!text.trim()) return '';
 
-  let result = text;
-  
-  // Multi-layer humanization process
-  result = applyHumanWritingQuirks(result);
-  result = addPersonalVoicePatterns(result);
-  result = insertNaturalInconsistencies(result);
-  result = applyContextualHumanization(result);
-  result = addSubtleImperfections(result);
-  result = finalAntiAIPass(result);
-  
-  return result.trim();
+interface HumanizationResult {
+  humanizedText: string;
+  replacements: Array<{ original: string; humanized: string; position: number }>;
 }
 
-function applyHumanWritingQuirks(text: string): string {
+export function humanizeText(text: string, mode: string = 'standard'): HumanizationResult {
+  if (!text.trim()) return { humanizedText: '', replacements: [] };
+
+  let result = text;
+  const replacements: Array<{ original: string; humanized: string; position: number }> = [];
+  
+  // Multi-layer humanization process
+  result = applyHumanWritingQuirks(result, replacements);
+  result = addPersonalVoicePatterns(result, replacements);
+  result = insertNaturalInconsistencies(result, replacements);
+  result = applyContextualHumanization(result, replacements);
+  result = addSubtleImperfections(result, replacements);
+  result = finalAntiAIPass(result, replacements);
+  
+  return {
+    humanizedText: result.trim(),
+    replacements
+  };
+}
+
+function applyHumanWritingQuirks(text: string, replacements: Array<{ original: string; humanized: string; position: number }>): string {
   let result = text;
   
   // Human tendency to start sentences with personal thoughts
@@ -32,7 +41,10 @@ function applyHumanWritingQuirks(text: string): string {
   // Randomly add human starters (30% chance)
   if (sentences.length > 0 && Math.random() > 0.7) {
     const starter = humanStarters[Math.floor(Math.random() * humanStarters.length)];
-    sentences[0] = `${starter} ${sentences[0].trim().toLowerCase()}`;
+    const original = sentences[0].trim();
+    const humanized = `${starter} ${original.toLowerCase()}`;
+    replacements.push({ original, humanized, position: 0 });
+    sentences[0] = humanized;
   }
   
   // Add mid-conversation clarifications
@@ -45,14 +57,17 @@ function applyHumanWritingQuirks(text: string): string {
   sentences.forEach((sentence, index) => {
     if (Math.random() > 0.8 && sentence.split(' ').length > 8) {
       const clarifier = clarifiers[Math.floor(Math.random() * clarifiers.length)];
-      sentences[index] = `${sentence.trim()} - ${clarifier}`;
+      const original = sentence.trim();
+      const humanized = `${original} - ${clarifier}`;
+      replacements.push({ original, humanized, position: result.indexOf(original) });
+      sentences[index] = humanized;
     }
   });
   
   return sentences.join('. ') + '.';
 }
 
-function addPersonalVoicePatterns(text: string): string {
+function addPersonalVoicePatterns(text: string, replacements: Array<{ original: string; humanized: string; position: number }>): string {
   let result = text;
   
   // Replace formal phrases with personal expressions
@@ -81,6 +96,13 @@ function addPersonalVoicePatterns(text: string): string {
   
   personalReplacements.forEach(({ formal, personal }) => {
     if (Math.random() > 0.3) {
+      const matches = result.match(formal);
+      if (matches) {
+        matches.forEach(match => {
+          const position = result.indexOf(match);
+          replacements.push({ original: match, humanized: personal, position });
+        });
+      }
       result = result.replace(formal, personal);
     }
   });
@@ -88,7 +110,7 @@ function addPersonalVoicePatterns(text: string): string {
   return result;
 }
 
-function insertNaturalInconsistencies(text: string): string {
+function insertNaturalInconsistencies(text: string, replacements: Array<{ original: string; humanized: string; position: number }>): string {
   let result = text;
   
   // Add human speech patterns and hesitations
@@ -126,7 +148,7 @@ function insertNaturalInconsistencies(text: string): string {
   return sentences.join('. ');
 }
 
-function applyContextualHumanization(text: string): string {
+function applyContextualHumanization(text: string, replacements: Array<{ original: string; humanized: string; position: number }>): string {
   let result = text;
   
   // Add emotional reactions and personal observations
@@ -160,7 +182,7 @@ function applyContextualHumanization(text: string): string {
   return sentences.join('. ');
 }
 
-function addSubtleImperfections(text: string): string {
+function addSubtleImperfections(text: string, replacements: Array<{ original: string; humanized: string; position: number }>): string {
   let result = text;
   
   // Vary sentence structures randomly
@@ -196,7 +218,7 @@ function addSubtleImperfections(text: string): string {
   return result;
 }
 
-function finalAntiAIPass(text: string): string {
+function finalAntiAIPass(text: string, replacements: Array<{ original: string; humanized: string; position: number }>): string {
   let result = text;
   
   // Apply contractions more aggressively

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +11,9 @@ interface Profile {
   usage_reset_date: string;
   avatar_url?: string | null;
   website?: string | null;
+  referral_code?: string | null;
+  preferred_mode?: string | null;
+  bonus_uses?: number;
 }
 
 interface AuthContextType {
@@ -101,7 +103,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               monthly_usage_count: newProfile.monthly_usage_count,
               usage_reset_date: newProfile.usage_reset_date,
               avatar_url: newProfile.avatar_url,
-              website: newProfile.website
+              website: newProfile.website,
+              referral_code: newProfile.referral_code,
+              preferred_mode: newProfile.preferred_mode,
+              bonus_uses: newProfile.bonus_uses
             };
             setProfile(profileData);
           }
@@ -119,7 +124,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           monthly_usage_count: data.monthly_usage_count,
           usage_reset_date: data.usage_reset_date,
           avatar_url: data.avatar_url,
-          website: data.website
+          website: data.website,
+          referral_code: data.referral_code,
+          preferred_mode: data.preferred_mode,
+          bonus_uses: data.bonus_uses
         };
         setProfile(profileData);
       }
