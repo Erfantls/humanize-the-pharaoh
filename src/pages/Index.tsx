@@ -46,7 +46,7 @@ const Index = () => {
   const [showExitIntent, setShowExitIntent] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
   const [selectedMode, setSelectedMode] = useState('casual');
-  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(useState < false)
   const [showReferralSystem, setShowReferralSystem] = useState(false);
   const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
   const [showInAppPurchases, setShowInAppPurchases] = useState(false);
@@ -260,21 +260,21 @@ const Index = () => {
               />
             </div>
 
-            {/* Improved responsive layout */}
-            <div className="space-y-6 sm:space-y-8">
-              {/* Text areas - stacked on mobile, side by side on larger screens */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            {/* Main content area with equal-sized text areas */}
+            <div className="space-y-6">
+              {/* Text areas - side by side on desktop, stacked on mobile with equal heights */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {/* Original Text */}
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="block text-lg font-semibold text-gray-700 dark:text-gray-300">
                       Original Text
                     </label>
                     <Button
                       onClick={() => setShowGrammarEnhancer(true)}
                       variant="ghost"
                       size="sm"
-                      className="text-xs hidden sm:flex"
+                      className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       Grammar Check
                     </Button>
@@ -283,29 +283,20 @@ const Index = () => {
                     placeholder="Paste your AI-generated text here..."
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    className="min-h-[300px] sm:min-h-[400px] resize-none border-gray-300 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500 text-sm sm:text-base"
+                    className="h-[450px] resize-none border-2 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-base rounded-lg bg-gray-50 dark:bg-gray-900"
                   />
-                  <div className="flex justify-between items-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
                     <span>{inputText.length} characters</span>
                     {userType === 'standard' && (
-                      <span className="hidden sm:inline">Limit: 10,000 characters</span>
+                      <span>Limit: 10,000 characters</span>
                     )}
                   </div>
-                  {/* Mobile Grammar Check button */}
-                  <Button
-                    onClick={() => setShowGrammarEnhancer(true)}
-                    variant="outline"
-                    size="sm"
-                    className="w-full sm:hidden text-xs"
-                  >
-                    Grammar Check
-                  </Button>
                 </div>
 
                 {/* Humanized Text */}
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="block text-lg font-semibold text-gray-700 dark:text-gray-300">
                       Humanized Text
                     </label>
                     {outputText && (
@@ -313,7 +304,7 @@ const Index = () => {
                         onClick={() => setShowAbuseReporting(true)}
                         variant="ghost"
                         size="sm"
-                        className="text-xs text-red-600 hover:text-red-700 hidden sm:flex"
+                        className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                       >
                         Report Issue
                       </Button>
@@ -324,10 +315,10 @@ const Index = () => {
                     placeholder="Your humanized text will appear here..."
                     value={outputText}
                     readOnly
-                    className="min-h-[300px] sm:min-h-[400px] resize-none bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-sm sm:text-base"
+                    className="h-[450px] resize-none bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-base rounded-lg"
                   />
                   <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       {outputText.length} characters
                     </span>
                     <Button
@@ -335,41 +326,30 @@ const Index = () => {
                       disabled={!outputText}
                       variant="outline"
                       size="sm"
-                      className="flex items-center space-x-2 text-xs sm:text-sm"
+                      className="flex items-center space-x-2"
                     >
-                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <Copy className="w-4 h-4" />
                       <span>Copy</span>
                     </Button>
                   </div>
-                  {/* Mobile Report Issue button */}
-                  {outputText && (
-                    <Button
-                      onClick={() => setShowAbuseReporting(true)}
-                      variant="outline"
-                      size="sm"
-                      className="w-full sm:hidden text-xs text-red-600 hover:text-red-700"
-                    >
-                      Report Issue
-                    </Button>
-                  )}
                 </div>
               </div>
 
               {/* Humanize Button - Centered below text areas */}
-              <div className="flex flex-col items-center space-y-4 sm:space-y-6 py-4 sm:py-6">
+              <div className="flex flex-col items-center space-y-6 py-8">
                 <Button
                   onClick={handleHumanize}
                   disabled={isProcessing || !inputText.trim()}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-6 sm:px-8 py-4 sm:py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-base sm:text-lg w-full sm:w-auto min-w-[200px]"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold px-12 py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-xl min-w-[280px]"
                 >
                   {isProcessing ? (
                     <>
-                      <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 animate-spin" />
+                      <RefreshCw className="w-6 h-6 mr-3 animate-spin" />
                       Humanizing...
                     </>
                   ) : (
                     <>
-                      <Wand2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                      <Wand2 className="w-6 h-6 mr-3" />
                       Humanize Text
                     </>
                   )}
@@ -380,7 +360,7 @@ const Index = () => {
 
               {/* Results and Analytics */}
               {outputText && (
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-6 border-t border-gray-200 dark:border-gray-700 pt-8">
                   <HumanizationPreview
                     originalText={inputText}
                     humanizedText={outputText}
