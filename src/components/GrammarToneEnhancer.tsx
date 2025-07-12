@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -60,7 +59,7 @@ const GrammarToneEnhancer: React.FC<GrammarToneEnhancerProps> = ({
       const mockSuggestions: GrammarSuggestion[] = [
         {
           id: '1',
-          type: 'grammar',
+          type: 'grammar' as const,
           original: 'it\'s',
           suggestion: 'it is',
           start: text.indexOf('it\'s'),
@@ -70,7 +69,7 @@ const GrammarToneEnhancer: React.FC<GrammarToneEnhancerProps> = ({
         },
         {
           id: '2',
-          type: 'tone',
+          type: 'tone' as const,
           original: 'really good',
           suggestion: 'excellent',
           start: text.indexOf('really good'),
@@ -80,7 +79,7 @@ const GrammarToneEnhancer: React.FC<GrammarToneEnhancerProps> = ({
         },
         {
           id: '3',
-          type: 'clarity',
+          type: 'clarity' as const,
           original: 'in order to',
           suggestion: 'to',
           start: text.indexOf('in order to'),

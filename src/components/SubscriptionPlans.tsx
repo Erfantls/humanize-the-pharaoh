@@ -46,7 +46,16 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({ isOpen, onClose }
         .order('price');
 
       if (error) throw error;
-      setPlans(data || []);
+      
+      // Convert the data to match our interface, handling the Json type
+      const convertedPlans: SubscriptionPlan[] = (data || []).map(plan => ({
+        ...plan,
+        features: typeof plan.features === 'object' && plan.features !== null 
+          ? plan.features as Record<string, any>
+          : {}
+      }));
+      
+      setPlans(convertedPlans);
     } catch (error) {
       console.error('Error fetching plans:', error);
       toast({

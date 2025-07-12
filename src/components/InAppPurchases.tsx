@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Zap, FileText, Boost, CreditCard } from 'lucide-react';
+import { Zap, FileText, Rocket, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface InAppPurchasesProps {
@@ -65,7 +64,7 @@ const InAppPurchases: React.FC<InAppPurchasesProps> = ({ isOpen, onClose }) => {
       price: 2.99,
       type: 'one_time_boost',
       quantity: 1,
-      icon: <Boost className="w-8 h-8 text-orange-500" />,
+      icon: <Rocket className="w-8 h-8 text-orange-500" />,
       popular: false
     }
   ];
