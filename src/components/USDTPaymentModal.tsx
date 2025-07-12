@@ -18,7 +18,7 @@ const USDTPaymentModal: React.FC<USDTPaymentModalProps> = ({
   const { toast } = useToast();
   
   // Replace these with your actual USDT details
-  const USDT_ADDRESS = "TYourUSDTAddressHere123456789";
+  const USDT_ADDRESS = "TJiqMPdFeRE6X2TiwYXvkzvxtVPYn4aoTh";
   const USDT_QR_CODE = "/lovable-uploads/12bd4e5a-3a58-4739-a212-44347f5bd813.png"; // Replace with your QR code image
 
   if (!isOpen) return null;
