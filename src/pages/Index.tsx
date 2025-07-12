@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import AuthModal from '@/components/AuthModal';
 import UsageLimiter from '@/components/UsageLimiter';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import YearlyPaymentModal from '@/components/YearlyPaymentModal';
+import USDTPaymentModal from '@/components/USDTPaymentModal';
 import HumanizationPreview from '@/components/HumanizationPreview';
 import TextReplacementDisplay from '@/components/TextReplacementDisplay';
 import OnboardingWalkthrough from '@/components/OnboardingWalkthrough';
@@ -39,6 +39,7 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showUSDTModal, setShowUSDTModal] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState<'usage_limit' | 'character_limit' | 'feature_locked'>('usage_limit');
   const [replacements, setReplacements] = useState<Array<{ original: string; humanized: string; position: number }>>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -159,25 +160,25 @@ const Index = () => {
 
   const handleUpgrade = () => {
     setShowUpgradePrompt(false);
-    setShowPaymentModal(true);
+    setShowUSDTModal(true);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navigation 
         onLoginClick={() => setShowAuthModal(true)}
-        onUpgradeClick={() => setShowPaymentModal(true)}
+        onUpgradeClick={() => setShowUSDTModal(true)}
         isDark={isDark}
         onThemeToggle={toggleTheme}
         themePreference={themePreference}
         getThemeIcon={getThemeIcon}
       />
 
-      <AdBanner onUpgrade={() => setShowPaymentModal(true)} />
+      <AdBanner onUpgrade={() => setShowUSDTModal(true)} />
 
       <div className="pt-20 pb-12">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-6xl font-bold text-gray-800 dark:text-white mb-6 animate-fade-in">
                 AI Text{' '}
@@ -241,7 +242,7 @@ const Index = () => {
               <UsageLimiter
                 usageCount={currentUsage}
                 maxUsage={maxFreeUsage}
-                onUpgrade={() => setShowPaymentModal(true)}
+                onUpgrade={() => setShowUSDTModal(true)}
               />
             )}
 
@@ -252,127 +253,129 @@ const Index = () => {
                 userType={userType}
               />
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Original Text
-                    </label>
-                    <Button
-                      onClick={() => setShowGrammarEnhancer(true)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs"
-                    >
-                      Grammar Check
-                    </Button>
-                  </div>
-                  <Textarea
-                    placeholder="Paste your AI-generated text here..."
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    className="min-h-[300px] resize-none border-gray-300 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500"
-                  />
-                  <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                    <span>{inputText.length} characters</span>
-                    {userType === 'standard' && (
-                      <span>Limit: 10,000 characters</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Humanized Text
-                    </label>
-                    {outputText && (
+              {/* Improved layout with better spacing */}
+              <div className="space-y-8">
+                <div className="grid lg:grid-cols-3 gap-6">
+                  {/* Original Text Column */}
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Original Text
+                      </label>
                       <Button
-                        onClick={() => setShowAbuseReporting(true)}
+                        onClick={() => setShowGrammarEnhancer(true)}
                         variant="ghost"
                         size="sm"
-                        className="text-xs text-red-600 hover:text-red-700"
+                        className="text-xs"
                       >
-                        Report Issue
+                        Grammar Check
                       </Button>
-                    )}
+                    </div>
+                    <Textarea
+                      placeholder="Paste your AI-generated text here..."
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      className="min-h-[400px] resize-none border-gray-300 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                      <span>{inputText.length} characters</span>
+                      {userType === 'standard' && (
+                        <span>Limit: 10,000 characters</span>
+                      )}
+                    </div>
                   </div>
-                  <Textarea
-                    ref={outputRef}
-                    placeholder="Your humanized text will appear here..."
-                    value={outputText}
-                    readOnly
-                    className="min-h-[300px] resize-none bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                  />
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {outputText.length} characters
-                    </span>
+
+                  {/* Middle Column - Humanize Button */}
+                  <div className="flex flex-col justify-center items-center space-y-6">
                     <Button
-                      onClick={handleCopy}
-                      disabled={!outputText}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center space-x-2"
+                      onClick={handleHumanize}
+                      disabled={isProcessing || !inputText.trim()}
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                      <Copy className="w-4 h-4" />
-                      <span>Copy</span>
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                          Humanizing...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-5 h-5 mr-2" />
+                          Humanize Text
+                        </>
+                      )}
                     </Button>
+
+                    {isProcessing && <ProgressAnimation />}
+                  </div>
+
+                  {/* Humanized Text Column */}
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Humanized Text
+                      </label>
+                      {outputText && (
+                        <Button
+                          onClick={() => setShowAbuseReporting(true)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-red-600 hover:text-red-700"
+                        >
+                          Report Issue
+                        </Button>
+                      )}
+                    </div>
+                    <Textarea
+                      ref={outputRef}
+                      placeholder="Your humanized text will appear here..."
+                      value={outputText}
+                      readOnly
+                      className="min-h-[400px] resize-none bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    />
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {outputText.length} characters
+                      </span>
+                      <Button
+                        onClick={handleCopy}
+                        disabled={!outputText}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center space-x-2"
+                      >
+                        <Copy className="w-4 h-4" />
+                        <span>Copy</span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
+
+                {outputText && (
+                  <div className="space-y-6">
+                    <HumanizationPreview
+                      originalText={inputText}
+                      humanizedText={outputText}
+                    />
+                    
+                    <OutputQualityGrading
+                      humanScore={humanScore}
+                      aiScore={aiScore}
+                    />
+
+                    <AIDetectionScoreMonitor
+                      originalText={inputText}
+                      humanizedText={outputText}
+                      aiScore={aiScore}
+                      humanScore={humanScore}
+                    />
+                  </div>
+                )}
+
+                <TextReplacementDisplay
+                  replacements={replacements}
+                  isProcessing={isProcessing}
+                />
               </div>
-
-              <div className="mt-8 text-center">
-                <Button
-                  onClick={handleHumanize}
-                  disabled={isProcessing || !inputText.trim()}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                >
-                  {isProcessing ? (
-                    <>
-                      <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
-                      Humanizing...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-5 h-5 mr-2" />
-                      Humanize Text
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {isProcessing && (
-                <div className="mt-6">
-                  <ProgressAnimation />
-                </div>
-              )}
-
-              {outputText && (
-                <div className="mt-8 space-y-6">
-                  <HumanizationPreview
-                    originalText={inputText}
-                    humanizedText={outputText}
-                  />
-                  
-                  <OutputQualityGrading
-                    humanScore={humanScore}
-                    aiScore={aiScore}
-                  />
-
-                  <AIDetectionScoreMonitor
-                    originalText={inputText}
-                    humanizedText={outputText}
-                    aiScore={aiScore}
-                    humanScore={humanScore}
-                  />
-                </div>
-              )}
-
-              <TextReplacementDisplay
-                replacements={replacements}
-                isProcessing={isProcessing}
-              />
             </div>
           </div>
         </div>
@@ -444,6 +447,12 @@ const Index = () => {
         onClose={() => setShowAbuseReporting(false)}
         inputText={inputText}
         outputText={outputText}
+      />
+    
+      <USDTPaymentModal
+        isOpen={showUSDTModal}
+        onClose={() => setShowUSDTModal(false)}
+        amount={24.99}
       />
     </div>
   );

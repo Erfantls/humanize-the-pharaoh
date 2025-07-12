@@ -43,6 +43,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, onUpgrade 
     if (onUpgrade) {
       onUpgrade();
     }
+    onClose();
   };
 
   return (
@@ -69,11 +70,11 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, onUpgrade 
         <div className="mb-8">
           <div className="text-center mb-6 p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-2xl border border-purple-200 dark:border-purple-800">
             <div className="flex items-center justify-center mb-2">
-              <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$9.99</span>
-              <span className="text-lg text-gray-600 dark:text-gray-300 ml-2">/month</span>
+              <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$24.99</span>
+              <span className="text-lg text-gray-600 dark:text-gray-300 ml-2">/lifetime</span>
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              <span className="line-through text-gray-400">$19.99</span>
+              <span className="line-through text-gray-400">$49.99</span>
               <span className="ml-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded-full text-xs font-medium">
                 50% OFF Launch Price
               </span>
@@ -107,7 +108,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, onUpgrade 
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center justify-center space-x-2">
               <Shield className="w-4 h-4" />
-              <span>Secure crypto payment • Instant activation</span>
+              <span>Secure USDT payment • Instant activation</span>
             </div>
           </div>
         </div>
