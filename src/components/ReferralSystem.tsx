@@ -27,7 +27,7 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ isOpen, onClose }) => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
 
-  const referralUrl = `${window.location.origin}?ref=${profile?.referral_code}`;
+  const referralUrl = `https://pharaoh-humanize-ai.vercel.app?ref=${profile?.referral_code}`;
 
   useEffect(() => {
     if (isOpen && user) {

@@ -211,16 +211,6 @@ const Index = () => {
               </Button>
               
               <Button
-                onClick={() => setShowSubscriptionPlans(true)}
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-2 text-xs sm:text-sm"
-              >
-                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span>Plans</span>
-              </Button>
-              
-              <Button
                 onClick={() => setShowEmailCapture(true)}
                 variant="outline"
                 size="sm"
@@ -431,11 +421,6 @@ const Index = () => {
       <ReferralSystem
         isOpen={showReferralSystem}
         onClose={() => setShowReferralSystem(false)}
-      />
-
-      <SubscriptionPlans
-        isOpen={showSubscriptionPlans}
-        onClose={() => setShowSubscriptionPlans(false)}
       />
 
       <InAppPurchases
