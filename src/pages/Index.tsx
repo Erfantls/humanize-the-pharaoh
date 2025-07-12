@@ -46,7 +46,7 @@ const Index = () => {
   const [showExitIntent, setShowExitIntent] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
   const [selectedMode, setSelectedMode] = useState('casual');
-  const [showBulkUpload, setShowBulkUpload] = useState(useState < false)
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showReferralSystem, setShowReferralSystem] = useState(false);
   const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
   const [showInAppPurchases, setShowInAppPurchases] = useState(false);
