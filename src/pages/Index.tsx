@@ -255,7 +255,7 @@ const Index = () => {
 
               {/* Improved layout with better spacing */}
               <div className="space-y-8">
-                <div className="grid lg:grid-cols-3 gap-6">
+                <div className="grid lg:grid-cols-3 gap-8">
                   {/* Original Text Column */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
@@ -290,16 +290,16 @@ const Index = () => {
                     <Button
                       onClick={handleHumanize}
                       disabled={isProcessing || !inputText.trim()}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-lg"
                     >
                       {isProcessing ? (
                         <>
-                          <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                          <RefreshCw className="w-6 h-6 mr-3 animate-spin" />
                           Humanizing...
                         </>
                       ) : (
                         <>
-                          <Wand2 className="w-5 h-5 mr-2" />
+                          <Wand2 className="w-6 h-6 mr-3" />
                           Humanize Text
                         </>
                       )}
