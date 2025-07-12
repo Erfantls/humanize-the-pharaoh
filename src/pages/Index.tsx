@@ -176,206 +176,234 @@ const Index = () => {
 
       <AdBanner onUpgrade={() => setShowUSDTModal(true)} />
 
-      <div className="pt-20 pb-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl md:text-6xl font-bold text-gray-800 dark:text-white mb-6 animate-fade-in">
-                AI Text{' '}
-                <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Humanizer
-                </span>
-              </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 animate-fade-in max-w-2xl mx-auto">
-                Transform AI-generated content into natural, human-like text that bypasses detection systems while maintaining original meaning.
-              </p>
+      <div className="pt-16 sm:pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6 animate-fade-in">
+              AI Text{' '}
+              <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Humanizer
+              </span>
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 animate-fade-in max-w-2xl mx-auto px-4">
+              Transform AI-generated content into natural, human-like text that bypasses detection systems while maintaining original meaning.
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 px-4">
+              <Button
+                onClick={() => setShowBulkUpload(true)}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 text-xs sm:text-sm"
+              >
+                <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>Bulk Upload</span>
+              </Button>
               
-              <div className="flex flex-wrap justify-center gap-4 mb-8">
-                <Button
-                  onClick={() => setShowBulkUpload(true)}
-                  variant="outline"
-                  className="flex items-center space-x-2"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>Bulk Upload</span>
-                </Button>
-                
-                <Button
-                  onClick={() => setShowReferralSystem(true)}
-                  variant="outline"
-                  className="flex items-center space-x-2"
-                >
-                  <Users className="w-4 h-4" />
-                  <span>Refer Friends</span>
-                </Button>
-                
-                <Button
-                  onClick={() => setShowSubscriptionPlans(true)}
-                  variant="outline"
-                  className="flex items-center space-x-2"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Plans</span>
-                </Button>
-                
-                <Button
-                  onClick={() => setShowEmailCapture(true)}
-                  variant="outline"
-                  className="flex items-center space-x-2"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span>Newsletter</span>
-                </Button>
+              <Button
+                onClick={() => setShowReferralSystem(true)}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 text-xs sm:text-sm"
+              >
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>Refer Friends</span>
+              </Button>
+              
+              <Button
+                onClick={() => setShowSubscriptionPlans(true)}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 text-xs sm:text-sm"
+              >
+                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>Plans</span>
+              </Button>
+              
+              <Button
+                onClick={() => setShowEmailCapture(true)}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 text-xs sm:text-sm"
+              >
+                <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>Newsletter</span>
+              </Button>
 
-                {profile?.user_type === 'admin' && (
-                  <Link to="/admin">
-                    <Button variant="outline" className="flex items-center space-x-2">
-                      <FileText className="w-4 h-4" />
-                      <span>Admin Panel</span>
-                    </Button>
-                  </Link>
-                )}
-              </div>
+              {profile?.user_type === 'admin' && (
+                <Link to="/admin">
+                  <Button variant="outline" size="sm" className="flex items-center space-x-2 text-xs sm:text-sm">
+                    <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>Admin Panel</span>
+                  </Button>
+                </Link>
+              )}
             </div>
+          </div>
 
-            {user && profile && (
+          {user && profile && (
+            <div className="mb-6 sm:mb-8">
               <UsageLimiter
                 usageCount={currentUsage}
                 maxUsage={maxFreeUsage}
                 onUpgrade={() => setShowUSDTModal(true)}
               />
-            )}
+            </div>
+          )}
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8 animate-scale-in border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 animate-scale-in border border-gray-200 dark:border-gray-700">
+            <div className="mb-6 sm:mb-8">
               <HumanizationModes
                 selectedMode={selectedMode}
                 onModeChange={setSelectedMode}
                 userType={userType}
               />
+            </div>
 
-              {/* Improved layout with better spacing */}
-              <div className="space-y-8">
-                <div className="grid lg:grid-cols-3 gap-8">
-                  {/* Original Text Column */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Original Text
-                      </label>
-                      <Button
-                        onClick={() => setShowGrammarEnhancer(true)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Grammar Check
-                      </Button>
-                    </div>
-                    <Textarea
-                      placeholder="Paste your AI-generated text here..."
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      className="min-h-[400px] resize-none border-gray-300 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500"
-                    />
-                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                      <span>{inputText.length} characters</span>
-                      {userType === 'standard' && (
-                        <span>Limit: 10,000 characters</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Middle Column - Humanize Button */}
-                  <div className="flex flex-col justify-center items-center space-y-6">
+            {/* Improved responsive layout */}
+            <div className="space-y-6 sm:space-y-8">
+              {/* Text areas - stacked on mobile, side by side on larger screens */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                {/* Original Text */}
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Original Text
+                    </label>
                     <Button
-                      onClick={handleHumanize}
-                      disabled={isProcessing || !inputText.trim()}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-lg"
+                      onClick={() => setShowGrammarEnhancer(true)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs hidden sm:flex"
                     >
-                      {isProcessing ? (
-                        <>
-                          <RefreshCw className="w-6 h-6 mr-3 animate-spin" />
-                          Humanizing...
-                        </>
-                      ) : (
-                        <>
-                          <Wand2 className="w-6 h-6 mr-3" />
-                          Humanize Text
-                        </>
-                      )}
+                      Grammar Check
                     </Button>
-
-                    {isProcessing && <ProgressAnimation />}
                   </div>
-
-                  {/* Humanized Text Column */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Humanized Text
-                      </label>
-                      {outputText && (
-                        <Button
-                          onClick={() => setShowAbuseReporting(true)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs text-red-600 hover:text-red-700"
-                        >
-                          Report Issue
-                        </Button>
-                      )}
-                    </div>
-                    <Textarea
-                      ref={outputRef}
-                      placeholder="Your humanized text will appear here..."
-                      value={outputText}
-                      readOnly
-                      className="min-h-[400px] resize-none bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                    />
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {outputText.length} characters
-                      </span>
-                      <Button
-                        onClick={handleCopy}
-                        disabled={!outputText}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center space-x-2"
-                      >
-                        <Copy className="w-4 h-4" />
-                        <span>Copy</span>
-                      </Button>
-                    </div>
+                  <Textarea
+                    placeholder="Paste your AI-generated text here..."
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    className="min-h-[300px] sm:min-h-[400px] resize-none border-gray-300 dark:border-gray-600 focus:ring-purple-500 focus:border-purple-500 text-sm sm:text-base"
+                  />
+                  <div className="flex justify-between items-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    <span>{inputText.length} characters</span>
+                    {userType === 'standard' && (
+                      <span className="hidden sm:inline">Limit: 10,000 characters</span>
+                    )}
                   </div>
+                  {/* Mobile Grammar Check button */}
+                  <Button
+                    onClick={() => setShowGrammarEnhancer(true)}
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:hidden text-xs"
+                  >
+                    Grammar Check
+                  </Button>
                 </div>
 
-                {outputText && (
-                  <div className="space-y-6">
-                    <HumanizationPreview
-                      originalText={inputText}
-                      humanizedText={outputText}
-                    />
-                    
-                    <OutputQualityGrading
-                      humanScore={humanScore}
-                      aiScore={aiScore}
-                    />
-
-                    <AIDetectionScoreMonitor
-                      originalText={inputText}
-                      humanizedText={outputText}
-                      aiScore={aiScore}
-                      humanScore={humanScore}
-                    />
+                {/* Humanized Text */}
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Humanized Text
+                    </label>
+                    {outputText && (
+                      <Button
+                        onClick={() => setShowAbuseReporting(true)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-red-600 hover:text-red-700 hidden sm:flex"
+                      >
+                        Report Issue
+                      </Button>
+                    )}
                   </div>
-                )}
-
-                <TextReplacementDisplay
-                  replacements={replacements}
-                  isProcessing={isProcessing}
-                />
+                  <Textarea
+                    ref={outputRef}
+                    placeholder="Your humanized text will appear here..."
+                    value={outputText}
+                    readOnly
+                    className="min-h-[300px] sm:min-h-[400px] resize-none bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-sm sm:text-base"
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                      {outputText.length} characters
+                    </span>
+                    <Button
+                      onClick={handleCopy}
+                      disabled={!outputText}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center space-x-2 text-xs sm:text-sm"
+                    >
+                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span>Copy</span>
+                    </Button>
+                  </div>
+                  {/* Mobile Report Issue button */}
+                  {outputText && (
+                    <Button
+                      onClick={() => setShowAbuseReporting(true)}
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:hidden text-xs text-red-600 hover:text-red-700"
+                    >
+                      Report Issue
+                    </Button>
+                  )}
+                </div>
               </div>
+
+              {/* Humanize Button - Centered below text areas */}
+              <div className="flex flex-col items-center space-y-4 sm:space-y-6 py-4 sm:py-6">
+                <Button
+                  onClick={handleHumanize}
+                  disabled={isProcessing || !inputText.trim()}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-6 sm:px-8 py-4 sm:py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-base sm:text-lg w-full sm:w-auto min-w-[200px]"
+                >
+                  {isProcessing ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 animate-spin" />
+                      Humanizing...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                      Humanize Text
+                    </>
+                  )}
+                </Button>
+
+                {isProcessing && <ProgressAnimation />}
+              </div>
+
+              {/* Results and Analytics */}
+              {outputText && (
+                <div className="space-y-4 sm:space-y-6">
+                  <HumanizationPreview
+                    originalText={inputText}
+                    humanizedText={outputText}
+                  />
+                  
+                  <OutputQualityGrading
+                    humanScore={humanScore}
+                    aiScore={aiScore}
+                  />
+
+                  <AIDetectionScoreMonitor
+                    originalText={inputText}
+                    humanizedText={outputText}
+                    aiScore={aiScore}
+                    humanScore={humanScore}
+                  />
+                </div>
+              )}
+
+              <TextReplacementDisplay
+                replacements={replacements}
+                isProcessing={isProcessing}
+              />
             </div>
           </div>
         </div>
