@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Users, Zap, Shield } from 'lucide-react';
+import { ArrowRight, CheckCircle, Users, Zap, Shield, Play } from 'lucide-react';
 
 interface LandingHeroProps {
   onGetStarted: () => void;
@@ -21,6 +21,11 @@ const LandingHero: React.FC<LandingHeroProps> = ({ onGetStarted }) => {
     'Instant processing in seconds',
     'No registration required to try'
   ];
+
+  const handleWatchDemo = () => {
+    // Open a demo video or modal
+    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+  };
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
@@ -74,10 +79,12 @@ const LandingHero: React.FC<LandingHeroProps> = ({ onGetStarted }) => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Button
+              onClick={handleWatchDemo}
               variant="outline"
               size="lg"
-              className="px-8 py-4 rounded-xl font-semibold border-2 hover:bg-white/10 backdrop-blur-sm"
+              className="px-8 py-4 rounded-xl font-semibold border-2 hover:bg-white/10 backdrop-blur-sm bg-gray-900 text-white border-gray-700 hover:bg-gray-800 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
             >
+              <Play className="w-5 h-5 mr-2" />
               Watch Demo
             </Button>
           </div>

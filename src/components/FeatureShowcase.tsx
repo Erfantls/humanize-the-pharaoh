@@ -2,7 +2,12 @@
 import React from 'react';
 import { Zap, Shield, Brain, Clock, Globe, Award } from 'lucide-react';
 
-const FeatureShowcase: React.FC = () => {
+interface FeatureShowcaseProps {
+  onGetStarted?: () => void;
+  onViewPricing?: () => void;
+}
+
+const FeatureShowcase: React.FC<FeatureShowcaseProps> = ({ onGetStarted, onViewPricing }) => {
   const features = [
     {
       icon: Shield,
@@ -41,6 +46,30 @@ const FeatureShowcase: React.FC = () => {
       color: 'from-pink-500 to-rose-600'
     }
   ];
+
+  const handleStartFreeTrial = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else {
+      // Scroll to the main tool
+      const toolSection = document.getElementById('humanizer-tool');
+      if (toolSection) {
+        toolSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleViewPricing = () => {
+    if (onViewPricing) {
+      onViewPricing();
+    } else {
+      // Scroll to pricing section
+      const pricingSection = document.querySelector('[data-section="pricing"]');
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <div className="py-20 bg-white dark:bg-gray-800">
@@ -81,10 +110,16 @@ const FeatureShowcase: React.FC = () => {
             Join thousands of satisfied users who trust our AI humanizer for their content needs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-purple-600 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+            <button 
+              onClick={handleStartFreeTrial}
+              className="inline-flex items-center justify-center bg-white text-purple-600 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600"
+            >
               Start Free Trial
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white/10 transition-colors">
+            <button 
+              onClick={handleViewPricing}
+              className="inline-flex items-center justify-center border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600"
+            >
               View Pricing
             </button>
           </div>

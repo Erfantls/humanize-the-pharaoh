@@ -89,6 +89,13 @@ const Index = () => {
     }
   };
 
+  const handleViewPricing = () => {
+    const pricingSection = document.querySelector('[data-section="pricing"]');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const handleHumanize = async () => {
     if (!inputText.trim()) {
       toast({
@@ -402,13 +409,19 @@ const Index = () => {
       </div>
 
       {/* Feature Showcase */}
-      <FeatureShowcase />
+      <FeatureShowcase 
+        onGetStarted={handleGetStarted}
+        onViewPricing={handleViewPricing}
+      />
 
       {/* Testimonials */}
       <TestimonialsSection />
 
       {/* Pricing */}
-      <PricingSection onUpgrade={() => setShowUSDTModal(true)} />
+      <PricingSection 
+        onUpgrade={() => setShowUSDTModal(true)} 
+        onGetStarted={handleGetStarted}
+      />
 
       <AuthModal
         isOpen={showAuthModal}

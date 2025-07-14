@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 
 interface PricingSectionProps {
   onUpgrade: () => void;
+  onGetStarted?: () => void;
 }
 
-const PricingSection: React.FC<PricingSectionProps> = ({ onUpgrade }) => {
+const PricingSection: React.FC<PricingSectionProps> = ({ onUpgrade, onGetStarted }) => {
   const plans = [
     {
       name: 'Free',
@@ -46,8 +47,20 @@ const PricingSection: React.FC<PricingSectionProps> = ({ onUpgrade }) => {
     }
   ];
 
+  const handleFreeButtonClick = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else {
+      // Scroll to the main tool
+      const toolSection = document.getElementById('humanizer-tool');
+      if (toolSection) {
+        toolSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
-    <div className="py-20 bg-gray-50 dark:bg-gray-900">
+    <div className="py-20 bg-gray-50 dark:bg-gray-900" data-section="pricing">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -120,7 +133,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({ onUpgrade }) => {
               </ul>
 
               <Button
-                onClick={index === 1 ? onUpgrade : () => {}}
+                onClick={index === 1 ? onUpgrade : handleFreeButtonClick}
                 className={`w-full py-4 rounded-xl font-semibold transition-all duration-300 ${
                   plan.popular
                     ? 'bg-white text-purple-600 hover:bg-gray-100'
