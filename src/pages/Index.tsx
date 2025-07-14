@@ -10,7 +10,6 @@ import Navigation from '@/components/Navigation';
 import AuthModal from '@/components/AuthModal';
 import UsageLimiter from '@/components/UsageLimiter';
 import UpgradePrompt from '@/components/UpgradePrompt';
-import YearlyPaymentModal from '@/components/YearlyPaymentModal';
 import USDTPaymentModal from '@/components/USDTPaymentModal';
 import HumanizationPreview from '@/components/HumanizationPreview';
 import TextReplacementDisplay from '@/components/TextReplacementDisplay';
@@ -24,11 +23,15 @@ import InAppNotifications from '@/components/InAppNotifications';
 import ReferralSystem from '@/components/ReferralSystem';
 import AdBanner from '@/components/AdBanner';
 import ProgressAnimation from '@/components/ProgressAnimation';
-import SubscriptionPlans from '@/components/SubscriptionPlans';
 import InAppPurchases from '@/components/InAppPurchases';
 import GrammarToneEnhancer from '@/components/GrammarToneEnhancer';
 import AIDetectionScoreMonitor from '@/components/AIDetectionScoreMonitor';
 import AbuseReportingTool from '@/components/admin/AbuseReportingTool';
+import LandingHero from '@/components/LandingHero';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import FeatureShowcase from '@/components/FeatureShowcase';
+import PricingSection from '@/components/PricingSection';
+import TrustBadges from '@/components/TrustBadges';
 import { useTheme } from '@/hooks/useTheme';
 import { Link } from 'react-router-dom';
 
@@ -72,6 +75,18 @@ const Index = () => {
   const handleOnboardingClose = () => {
     setShowOnboarding(false);
     localStorage.setItem('hasSeenOnboarding', 'true');
+  };
+
+  const handleGetStarted = () => {
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      // Scroll to the main tool
+      const toolSection = document.getElementById('humanizer-tool');
+      if (toolSection) {
+        toolSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   };
 
   const handleHumanize = async () => {
@@ -177,19 +192,23 @@ const Index = () => {
         getThemeIcon={getThemeIcon}
       />
 
+      {/* Landing Hero Section */}
+      <LandingHero onGetStarted={handleGetStarted} />
+
+      {/* Trust Badges */}
+      <TrustBadges />
+
       <AdBanner onUpgrade={() => setShowUSDTModal(true)} />
 
-      <div className="pt-16 sm:pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+      {/* Main Humanizer Tool */}
+      <div id="humanizer-tool" className="pt-16 sm:pt-20 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 sm:mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6 animate-fade-in">
-              AI Text{' '}
-              <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Humanizer
-              </span>
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 animate-fade-in max-w-2xl mx-auto px-4">
-              Transform AI-generated content into natural, human-like text that bypasses detection systems while maintaining original meaning.
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">
+              Transform Your Content Now
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
+              Paste your AI-generated text below and watch it transform into natural, human-like content.
             </p>
             
             <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 px-4">
@@ -381,6 +400,15 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Feature Showcase */}
+      <FeatureShowcase />
+
+      {/* Testimonials */}
+      <TestimonialsSection />
+
+      {/* Pricing */}
+      <PricingSection onUpgrade={() => setShowUSDTModal(true)} />
 
       <AuthModal
         isOpen={showAuthModal}
