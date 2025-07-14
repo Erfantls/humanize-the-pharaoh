@@ -38,7 +38,6 @@ const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showUSDTModal, setShowUSDTModal] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState<'usage_limit' | 'character_limit' | 'feature_locked'>('usage_limit');
   const [replacements, setReplacements] = useState<Array<{ original: string; humanized: string; position: number }>>([]);
@@ -48,7 +47,6 @@ const Index = () => {
   const [selectedMode, setSelectedMode] = useState('casual');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showReferralSystem, setShowReferralSystem] = useState(false);
-  const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
   const [showInAppPurchases, setShowInAppPurchases] = useState(false);
   const [showGrammarEnhancer, setShowGrammarEnhancer] = useState(false);
   const [showAbuseReporting, setShowAbuseReporting] = useState(false);
@@ -160,6 +158,11 @@ const Index = () => {
 
   const handleUpgrade = () => {
     setShowUpgradePrompt(false);
+    setShowUSDTModal(true);
+  };
+
+  const handleYearlyUpgrade = () => {
+    // For yearly premium, we'll also redirect to USDT payment with yearly amount
     setShowUSDTModal(true);
   };
 
@@ -393,18 +396,13 @@ const Index = () => {
         maxUsage={maxFreeUsage}
       />
 
-      <YearlyPaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-      />
-
       <OnboardingWalkthrough
         isOpen={showOnboarding}
         onClose={handleOnboardingClose}
       />
 
       <ExitIntentPopup
-        onUpgrade={() => setShowPaymentModal(true)}
+        onUpgrade={handleYearlyUpgrade}
       />
 
       <EmailCapture

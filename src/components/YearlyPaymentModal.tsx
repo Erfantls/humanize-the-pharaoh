@@ -39,6 +39,13 @@ const YearlyPaymentModal: React.FC<YearlyPaymentModalProps> = ({ isOpen, onClose
     }
   ];
 
+  const handleUpgradeClick = () => {
+    if (onUpgrade) {
+      onUpgrade();
+    }
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in p-4">
       <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-lg w-full mx-4 animate-scale-in shadow-2xl border border-gray-200 dark:border-gray-700">
@@ -92,7 +99,7 @@ const YearlyPaymentModal: React.FC<YearlyPaymentModalProps> = ({ isOpen, onClose
 
         <div className="space-y-3">
           <button 
-            onClick={onUpgrade}
+            onClick={handleUpgradeClick}
             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
           >
             <Crown className="w-5 h-5" />
