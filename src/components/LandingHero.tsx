@@ -27,6 +27,11 @@ const LandingHero: React.FC<LandingHeroProps> = ({ onGetStarted }) => {
     window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
   };
 
+  const handleTryFreeNow = () => {
+    console.log('Try Free Now clicked');
+    onGetStarted();
+  };
+
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
       {/* Background decorations */}
@@ -71,9 +76,9 @@ const LandingHero: React.FC<LandingHeroProps> = ({ onGetStarted }) => {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button
-              onClick={onGetStarted}
+              onClick={handleTryFreeNow}
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
             >
               Try Free Now
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -82,7 +87,7 @@ const LandingHero: React.FC<LandingHeroProps> = ({ onGetStarted }) => {
               onClick={handleWatchDemo}
               variant="outline"
               size="lg"
-              className="px-8 py-4 rounded-xl font-semibold border-2 hover:bg-white/10 backdrop-blur-sm bg-gray-900 text-white border-gray-700 hover:bg-gray-800 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
+              className="px-8 py-4 rounded-xl font-semibold border-2 hover:bg-white/10 backdrop-blur-sm bg-gray-900 text-white border-gray-700 hover:bg-gray-800 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
               <Play className="w-5 h-5 mr-2" />
               Watch Demo

@@ -27,7 +27,9 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ isOpen, onClose }) => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
 
-  const referralUrl = `https://pharaoh-humanize-ai.vercel.app?ref=${profile?.referral_code}`;
+  const referralUrl = user && profile?.referral_code 
+    ? `${window.location.origin}?ref=${profile.referral_code}`
+    : `${window.location.origin}`;
 
   useEffect(() => {
     if (isOpen && user) {
@@ -87,22 +89,36 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const copyReferralLink = () => {
-    navigator.clipboard.writeText(referralUrl);
-    toast({
-      title: "Link copied!",
-      description: "Referral link copied to clipboard",
-      variant: "default"
-    });
+  const copyReferralLink = async () => {
+    try {
+      await navigator.clipboard.writeText(referralUrl);
+      toast({
+        title: "Link copied!",
+        description: "Referral link copied to clipboard",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+      toast({
+        title: "Copy failed",
+        description: "Please select and copy the link manually.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const shareReferralLink = () => {
+  const shareReferralLink = async () => {
     if (navigator.share) {
-      navigator.share({
-        title: 'AI Text Humanizer',
-        text: 'Check out this amazing AI text humanizer!',
-        url: referralUrl
-      });
+      try {
+        await navigator.share({
+          title: 'AI Text Humanizer',
+          text: 'Check out this amazing AI text humanizer!',
+          url: referralUrl
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+        copyReferralLink();
+      }
     } else {
       copyReferralLink();
     }
@@ -125,9 +141,10 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ isOpen, onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            aria-label="Close referral system"
           >
-            ×
+            <span className="text-xl">×</span>
           </button>
         </div>
 
@@ -172,12 +189,22 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ isOpen, onClose }) => {
             <Input
               value={referralUrl}
               readOnly
-              className="flex-1 bg-gray-50 dark:bg-gray-700"
+              className="flex-1 bg-gray-50 dark:bg-gray-700 text-sm"
             />
-            <Button onClick={copyReferralLink} variant="outline" size="sm">
+            <Button 
+              onClick={copyReferralLink} 
+              variant="outline" 
+              size="sm"
+              className="shrink-0"
+            >
               <Copy className="w-4 h-4" />
             </Button>
-            <Button onClick={shareReferralLink} variant="outline" size="sm">
+            <Button 
+              onClick={shareReferralLink} 
+              variant="outline" 
+              size="sm"
+              className="shrink-0"
+            >
               <Share2 className="w-4 h-4" />
             </Button>
           </div>
@@ -203,7 +230,7 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ isOpen, onClose }) => {
             <Button
               type="submit"
               disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white shrink-0"
             >
               {loading ? 'Sending...' : 'Invite'}
             </Button>
@@ -221,15 +248,15 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ isOpen, onClose }) => {
                   key={referral.id}
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                 >
-                  <div>
-                    <div className="font-medium text-gray-800 dark:text-gray-200">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-800 dark:text-gray-200 truncate">
                       {referral.referred_email}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(referral.created_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 ml-2">
                     {referral.status === 'completed' && (
                       <CheckCircle className="w-5 h-5 text-green-500" />
                     )}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -83,6 +84,7 @@ const Index = () => {
   };
 
   const handleGetStarted = () => {
+    console.log('Get Started clicked, user:', !!user);
     if (!user) {
       setShowAuthModal(true);
     } else {
@@ -98,6 +100,15 @@ const Index = () => {
     const pricingSection = document.querySelector('[data-section="pricing"]');
     if (pricingSection) {
       pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleReferFriends = () => {
+    console.log('Refer Friends clicked');
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      setShowReferralSystem(true);
     }
   };
 
@@ -253,7 +264,7 @@ const Index = () => {
               </Button>
               
               <Button
-                onClick={() => setShowReferralSystem(true)}
+                onClick={handleReferFriends}
                 variant="outline"
                 size="sm"
                 className="flex items-center space-x-2 text-xs sm:text-sm"
