@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Clock, Fire, Users, ArrowRight } from 'lucide-react';
+import { Clock, Flame, Users, ArrowRight } from 'lucide-react';
 
 const UrgencySection: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -53,9 +53,9 @@ const UrgencySection: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border-4 border-gradient-to-r from-red-500 to-orange-500">
           <div className="bg-gradient-to-r from-red-500 to-orange-500 px-6 py-4">
             <div className="flex items-center justify-center space-x-2 text-white">
-              <Fire className="w-6 h-6 animate-pulse" />
+              <Flame className="w-6 h-6 animate-pulse" />
               <span className="font-bold text-lg">LIMITED TIME OFFER</span>
-              <Fire className="w-6 h-6 animate-pulse" />
+              <Flame className="w-6 h-6 animate-pulse" />
             </div>
           </div>
 
@@ -115,7 +115,7 @@ const UrgencySection: React.FC = () => {
               </div>
               
               <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 text-center border border-purple-200 dark:border-purple-800">
-                <Fire className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+                <Flame className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">98%</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">Customer satisfaction</div>
               </div>
