@@ -32,6 +32,11 @@ import TestimonialsSection from '@/components/TestimonialsSection';
 import FeatureShowcase from '@/components/FeatureShowcase';
 import PricingSection from '@/components/PricingSection';
 import TrustBadges from '@/components/TrustBadges';
+import AnimatedStats from '@/components/AnimatedStats';
+import FAQSection from '@/components/FAQSection';
+import ComparisonSection from '@/components/ComparisonSection';
+import SocialProofBanner from '@/components/SocialProofBanner';
+import UrgencySection from '@/components/UrgencySection';
 import { useTheme } from '@/hooks/useTheme';
 import { Link } from 'react-router-dom';
 
@@ -201,6 +206,24 @@ const Index = () => {
 
       {/* Landing Hero Section */}
       <LandingHero onGetStarted={handleGetStarted} />
+
+      {/* Social Proof Banner */}
+      <SocialProofBanner />
+
+      {/* Animated Stats */}
+      <div className="py-16 bg-white dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Trusted by Thousands Worldwide
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">
+              Real-time statistics from our growing community
+            </p>
+          </div>
+          <AnimatedStats />
+        </div>
+      </div>
 
       {/* Trust Badges */}
       <TrustBadges />
@@ -414,14 +437,23 @@ const Index = () => {
         onViewPricing={handleViewPricing}
       />
 
+      {/* Comparison Section */}
+      <ComparisonSection />
+
       {/* Testimonials */}
       <TestimonialsSection />
+
+      {/* Urgency Section */}
+      <UrgencySection />
 
       {/* Pricing */}
       <PricingSection 
         onUpgrade={() => setShowUSDTModal(true)} 
         onGetStarted={handleGetStarted}
       />
+
+      {/* FAQ Section */}
+      <FAQSection />
 
       <AuthModal
         isOpen={showAuthModal}
